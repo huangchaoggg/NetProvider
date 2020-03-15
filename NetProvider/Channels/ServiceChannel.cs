@@ -26,12 +26,12 @@ namespace NetProvider.Channels
             this.Uri = uri;
         }
         
-        public async Task<object> Invok(string InterfaceName,string methodName,params object[] objs)
+        public object Invok(string InterfaceName,string methodName,params object[] objs)
         {
             Type t = this.GetType();
             MethodInfo info= t.GetInterface(InterfaceName).GetMethod(methodName);
             Attribute[] attributes = Attribute.GetCustomAttributes(info);
-            return await RunMethod(attributes,info.ReturnType,info.GetParameters(),objs);
+            return RunMethod(attributes,info.ReturnType,info.GetParameters(),objs);
         }
         public async Task<object> RunMethod(Attribute[] attributes, Type retType, ParameterInfo[] parameters, params object[] objs)
         {
@@ -40,22 +40,21 @@ namespace NetProvider.Channels
             {
                 throw new MessageException("特性不存在");
             }
-            Task<HttpResponseMessage> rd = Request(ra, parameters, objs);
-            if (retType == typeof(Task<HttpResponseMessage>))
+            HttpResponseMessage rd = await Request(ra, parameters, objs);
+            string str = await rd.Content.ReadAsStringAsync();
+            if (retType.IsGenericType)
             {
-                return rd;
-            }
-            return await rd.ContinueWith(async(vv) =>
-            {
-                var result= vv.Result;
-                var str=await result.Content.ReadAsStringAsync();
-                if (retType.IsGenericType)
+                Type t = retType.GetGenericArguments()[0];
+                if (t == typeof(string))
                 {
-                    Type t= retType.GenericTypeArguments[0];
-                    return str.ToObject(t);
+                    return str;
                 }
+                return str.ToObject(t);
+            }
+            else
+            {
                 return str;
-            });
+            }
         }
         /// <summary>
         /// 请求数据

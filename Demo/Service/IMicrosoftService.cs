@@ -18,7 +18,7 @@ namespace Demo.Service
         /// </summary>
         /// <returns></returns>
         [Request(RequestType.Get, "zh-cn/dotnet/breadcrumb/toc.json")]
-        Task<HttpResponseMessage> GetJson();
+        Task<string> GetJson();
         /// <summary>
         ///对象类型调用
         /// </summary>
@@ -44,19 +44,19 @@ namespace Demo.Service
             //wc.Add(HttpRequestHeader.Connection, "keep-alive");
         }
         
-        public Task<HttpResponseMessage> GetJson()
+        public async Task<string> GetJson()
         {
-            return this.Channel.GetJson();
+            return await this.Channel.GetJson();
         }
 
-        public Task<Meta> GetMeta()
+        public async Task<Meta> GetMeta()
         {
-            return this.Channel.GetMeta();
+            return await this.Channel.GetMeta();
         }
 
-        public Task Tutorials()
+        public async Task Tutorials()
         {
-           return this.Channel.Tutorials();
+           await this.Channel.Tutorials();
         }
     }
 }

@@ -20,13 +20,13 @@ namespace Demo
         IMicrosoftService service = new MicrosoftService("https://docs.microsoft.com");
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            Task<HttpResponseMessage> rd = service.GetJson();
+            Task<string> rd = service.GetJson();
             rd.ContinueWith((rr) =>
             {
                 Dispatcher.Invoke(() =>
                 {
-                    TextBox1.Text = rd.ToString();
-                    Meta mt = rr.Result.ToString().ToObject<Meta>();
+                    TextBox1.Text = rr.Result;
+                    Meta mt = rr.Result.ToObject<Meta>();
                     treeView.ItemsSource = null;
                     treeView.ItemsSource = mt.items;
                 });
