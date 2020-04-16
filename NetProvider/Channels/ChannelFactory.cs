@@ -41,7 +41,7 @@ namespace NetProvider.Channels
                     , typeof(ServiceChannel));
                 typeBuilder.AddInterfaceImplementation(t);
                 CreateKittyClassStructure(typeBuilder);
-                Create(infos, typeBuilder, t);
+                CreateMethodOverride(infos, typeBuilder, t);
                 Type rt = typeBuilder.CreateTypeInfo().AsType();
                 Object ob = Activator.CreateInstance(rt,uri);
                 return ob as T;
@@ -57,7 +57,7 @@ namespace NetProvider.Channels
         /// <param name="webNetwork"></param>
         /// <param name="info"></param>
         /// <param name="iL"></param>
-        private void Create(MethodInfo[] infos, TypeBuilder typeBuilder, Type type)
+        private void CreateMethodOverride(MethodInfo[] infos, TypeBuilder typeBuilder, Type type)
         {
             foreach (MethodInfo info in infos)
             {
@@ -69,28 +69,35 @@ namespace NetProvider.Channels
                     MethodAttributes.Final, info.ReturnType, ParameterTypes);
                 ILGenerator iL = methodBuilder.GetILGenerator();//生成中间语言指令
                 MethodInfo methodInfo = typeof(ServiceChannel).GetMethod("Invok", BindingFlags.Public | BindingFlags.Instance);
-                Task t= Task.Factory.StartNew(() =>
-                {
-                    
-                });
+
                 LocalBuilder lisLb = iL.DeclareLocal(typeof(object[]));
+                LocalBuilder parameters = iL.DeclareLocal(typeof(Parameters));
+                ConstructorInfo constructorInfo = parameters.LocalType.GetConstructor(new Type[] {
+                    typeof(string),typeof(string),typeof(object[]) });
                 iL.Emit(OpCodes.Nop);
                 int leth = info.GetParameters().Length;
                 iL.Emit(OpCodes.Ldc_I4, leth);
                 iL.Emit(OpCodes.Newarr, typeof(object));
-                iL.Emit(OpCodes.Stloc, lisLb);
+                iL.Emit(OpCodes.Dup);
                 for (int i = 0; i < leth; i++)
                 {
-                    iL.Emit(OpCodes.Ldloc, lisLb);
                     iL.Emit(OpCodes.Ldc_I4, i);
                     iL.Emit(OpCodes.Ldarg, i + 1);
+                    iL.Emit(OpCodes.Box, ParameterTypes[i]);
                     iL.Emit(OpCodes.Stelem_Ref);
+                    if (leth - 1 != i)
+                        iL.Emit(OpCodes.Dup);
                 }
-                iL.Emit(OpCodes.Ldarg_0);
+                iL.Emit(OpCodes.Stloc, lisLb.LocalIndex);
                 iL.Emit(OpCodes.Ldstr, typeof(T).Name);
                 iL.Emit(OpCodes.Ldstr, info.Name);
-                iL.Emit(OpCodes.Ldloc, lisLb);
-                iL.EmitCall(OpCodes.Call, methodInfo, new Type[] { typeof(string), typeof(string), typeof(object[]) });
+                iL.Emit(OpCodes.Ldloc, lisLb.LocalIndex);
+                iL.Emit(OpCodes.Newobj, constructorInfo);
+                iL.Emit(OpCodes.Stloc, parameters);
+
+                iL.Emit(OpCodes.Ldarg_0);
+                iL.Emit(OpCodes.Ldloc, parameters);
+                iL.EmitCall(OpCodes.Call, methodInfo, new Type[] { typeof(Parameters) });
 
                 iL.Emit(OpCodes.Ret);
 

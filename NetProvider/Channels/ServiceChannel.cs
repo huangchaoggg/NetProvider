@@ -26,12 +26,12 @@ namespace NetProvider.Channels
             this.Uri = uri;
         }
         
-        public object Invok(string InterfaceName,string methodName,params object[] objs)
+        public object Invok(Parameters parameters)
         {
             Type t = this.GetType();
-            MethodInfo info= t.GetInterface(InterfaceName).GetMethod(methodName);
+            MethodInfo info = t.GetInterface(parameters.InterfaceName).GetMethod(parameters.MethodName);
             Attribute[] attributes = Attribute.GetCustomAttributes(info);
-            return RunMethod(attributes,info.ReturnType,info.GetParameters(),objs);
+            return RunMethod(attributes, info.ReturnType, info.GetParameters(), parameters.ParametersInfo);
         }
         public async Task<object> RunMethod(Attribute[] attributes, Type retType, ParameterInfo[] parameters, params object[] objs)
         {
@@ -98,7 +98,8 @@ namespace NetProvider.Channels
                 StringBuilder sb = new StringBuilder();
                 foreach (ParameterInfo p in parameters)
                 {
-                    sb.Append($" {p.Name}={objs[p.Position].ToString()}&");
+                    if(objs[p.Position]!=null)
+                        sb.Append($" {p.Name}={objs[p.Position].ToString()}&");
                 }
                 string ss = sb.ToString().TrimEnd('&');
                 rd =await HttpWebNetwork.GetRequest($"{uri}?{ss}");
