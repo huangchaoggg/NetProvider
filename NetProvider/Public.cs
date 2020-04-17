@@ -24,27 +24,10 @@ namespace NetProvider
             Uri = uri;
         }
     }
-    ///// <summary>
-    ///// 贴在类上的标签
-    ///// </summary>
-    //[AttributeUsage(AttributeTargets.Class, AllowMultiple = true, Inherited = true)]
-    //internal sealed class AOPAttribute : Attribute, IContributeObjectSink
-    //{
-    //    public AOPAttribute() : base("AOP")
-    //    {
-    //    }
+    //public class SocketSendAttribute : Attribute { }
 
-    //    /// <summary>
-    //    /// 实现消息接收器接口
-    //    /// </summary>
-    //    /// <param name="obj"></param>
-    //    /// <param name="next"></param>
-    //    /// <returns></returns>
-    //    public IMessageSink GetObjectSink(MarshalByRefObject obj, IMessageSink next)
-    //    {
-    //        return new TransactionAop(obj, next);
-    //    }
-    //}
+    //public class SocketReceiveAttribute : Attribute { }
+
     public static class JsonExpand
     {
         public static string ToJsonString(this object obj)

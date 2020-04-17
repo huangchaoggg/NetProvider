@@ -14,7 +14,7 @@ namespace NetProvider.Channels
     /// 定义Web服务通道
     /// </summary>
     //[AOPAttribute]
-    public abstract class ServiceChannel
+    public abstract class ServiceChannel: IServiceChannel
     {
         public string Uri { get; private set; }
         /// <summary>
@@ -130,16 +130,39 @@ namespace NetProvider.Channels
     /// <summary>
     /// 定义web上传下载服务通道
     /// </summary>
-    public abstract class FileServiceChannel : ServiceChannel
-    { 
-        public FileServiceChannel(string uri) : base(uri) { }
+    public abstract class FileServiceChannel : IServiceChannel
+    {
+        public object Invok(Parameters parameters)
+        {
+            throw new NotImplementedException();
+        }
     }
     /// <summary>
     /// 定义Socket服务通道
     /// </summary>
-    public abstract class SocketServiceChannel : ServiceChannel
+    public abstract class SocketServiceChannel : ISocketServiceChannel
     {
-        public SocketServiceChannel(string uri) : base(uri) { }
+        public SocketClient SocketClient { get; private set; }
+        public SocketServiceChannel(string ip,int port)
+        {
+            this.SocketClient = new SocketClient(ip,port);
+        }
+        public void StartClient()
+        {
+            SocketClient.StartClient();
+            SocketClient.ReceiveMessage();
+        }
+        public void Close()
+        {
+            SocketClient.Close();
+        }
+
+        public object Invok(Parameters parameters)
+        {
+            string value= parameters.ParametersInfo[0].ToJsonString();
+            SocketClient.SendMessage(value);
+            return 0;
+        }
     }
     //public interface Aaa
     //{

@@ -7,31 +7,26 @@ using System.Threading.Tasks;
 
 namespace NetProvider.Channels
 {
-    public class ChannelFactory<T> where T : class
+    public class ChannelFactory<T>:FactoryBase<T> where T : class
     {
-        //定义和表示动态程序集的模块
-        private ModuleBuilder moduleBuilder = null;
-        //定义表示动态程序集
-        private AssemblyBuilder assemblyBuilder = null;
+        private string uri;
         public ChannelFactory(string uri)
         {
-            this.Channel= CreateChannel(uri);
+            this.uri = uri;
+            base.Channel= CreateChannel();
         }
-        public T Channel { get; private set; }
-        private T CreateChannel(string uri)
+        protected private override T CreateChannel()
         {
-
             Type t = typeof(T);
             if (t.IsInterface)
             {
                 MethodInfo[] infos = t.GetMethods();
                 //运行并创建类的新实例
                 TypeBuilder typeBuilder = null;
-                
+
                 //指定名称，访问模式
 
-                assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(new AssemblyName("Channels"), AssemblyBuilderAccess.RunAndCollect);//AppDomain.CurrentDomain.DefineDynamicAssembly(new AssemblyName("Channels"), AssemblyBuilderAccess.Run);
-                moduleBuilder = assemblyBuilder.DefineDynamicModule("Channels");
+
                 typeBuilder = moduleBuilder.DefineType(t.Name + "Impl", TypeAttributes.Public |
                     TypeAttributes.Class |
                     TypeAttributes.AutoClass |
@@ -41,9 +36,9 @@ namespace NetProvider.Channels
                     , typeof(ServiceChannel));
                 typeBuilder.AddInterfaceImplementation(t);
                 CreateKittyClassStructure(typeBuilder);
-                CreateMethodOverride(infos, typeBuilder, t);
+                DynamicMethod(infos, typeBuilder, t);
                 Type rt = typeBuilder.CreateTypeInfo().AsType();
-                Object ob = Activator.CreateInstance(rt,uri);
+                Object ob = Activator.CreateInstance(rt, uri);
                 return ob as T;
             }
             else
@@ -51,83 +46,5 @@ namespace NetProvider.Channels
                 return Activator.CreateInstance<T>();
             }
         }
-        /// <summary>
-        /// 重写或实现接口/虚方法
-        /// </summary>
-        /// <param name="webNetwork"></param>
-        /// <param name="info"></param>
-        /// <param name="iL"></param>
-        private void CreateMethodOverride(MethodInfo[] infos, TypeBuilder typeBuilder, Type type)
-        {
-            foreach (MethodInfo info in infos)
-            {
-                Type[] ParameterTypes = info.GetParameters().Select(s => s.ParameterType).ToArray();
-                MethodBuilder methodBuilder = typeBuilder.DefineMethod(info.Name, MethodAttributes.Public |
-                    MethodAttributes.Virtual |
-                    MethodAttributes.HideBySig |
-                    MethodAttributes.NewSlot |
-                    MethodAttributes.Final, info.ReturnType, ParameterTypes);
-                ILGenerator iL = methodBuilder.GetILGenerator();//生成中间语言指令
-                MethodInfo methodInfo = typeof(ServiceChannel).GetMethod("Invok", BindingFlags.Public | BindingFlags.Instance);
-
-                LocalBuilder lisLb = iL.DeclareLocal(typeof(object[]));
-                LocalBuilder parameters = iL.DeclareLocal(typeof(Parameters));
-                ConstructorInfo constructorInfo = parameters.LocalType.GetConstructor(new Type[] {
-                    typeof(string),typeof(string),typeof(object[]) });
-                iL.Emit(OpCodes.Nop);
-                int leth = info.GetParameters().Length;
-                iL.Emit(OpCodes.Ldc_I4, leth);
-                iL.Emit(OpCodes.Newarr, typeof(object));
-                iL.Emit(OpCodes.Dup);
-                for (int i = 0; i < leth; i++)
-                {
-                    iL.Emit(OpCodes.Ldc_I4, i);
-                    iL.Emit(OpCodes.Ldarg, i + 1);
-                    iL.Emit(OpCodes.Box, ParameterTypes[i]);
-                    iL.Emit(OpCodes.Stelem_Ref);
-                    if (leth - 1 != i)
-                        iL.Emit(OpCodes.Dup);
-                }
-                iL.Emit(OpCodes.Stloc, lisLb.LocalIndex);
-                iL.Emit(OpCodes.Ldstr, typeof(T).Name);
-                iL.Emit(OpCodes.Ldstr, info.Name);
-                iL.Emit(OpCodes.Ldloc, lisLb.LocalIndex);
-                iL.Emit(OpCodes.Newobj, constructorInfo);
-                iL.Emit(OpCodes.Stloc, parameters);
-
-                iL.Emit(OpCodes.Ldarg_0);
-                iL.Emit(OpCodes.Ldloc, parameters);
-                iL.EmitCall(OpCodes.Call, methodInfo, new Type[] { typeof(Parameters) });
-
-                iL.Emit(OpCodes.Ret);
-
-                typeBuilder.DefineMethodOverride(methodBuilder, type.GetMethod(info.Name));
-            }
-        }
-        /// <summary>
-        /// 创建无参构造器
-        /// </summary>
-        /// <param name="typeBuilder"></param>
-        private static void CreateKittyClassStructure(TypeBuilder typeBuilder)
-        {
-
-            Type objType = typeof(ServiceChannel);
-            ConstructorInfo objCtor = objType.GetConstructor(new Type[1] {typeof(string) });
-
-            Type[] constructorArgs = { typeof(string) };
-            var constructorBuilder = typeBuilder.DefineConstructor(
-               MethodAttributes.Public, CallingConventions.Standard, constructorArgs);
-            ILGenerator ilOfCtor = constructorBuilder.GetILGenerator();
-
-            ilOfCtor.Emit(OpCodes.Ldarg_0);
-            ilOfCtor.Emit(OpCodes.Ldarg_1);
-            ilOfCtor.Emit(OpCodes.Call, objCtor);
-            ilOfCtor.Emit(OpCodes.Nop);
-            ilOfCtor.Emit(OpCodes.Ret);
-
-            // ---- define properties ----
-
-        }
-
     }
 }
