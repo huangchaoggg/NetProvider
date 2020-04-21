@@ -7,13 +7,13 @@ using System.Text;
 
 namespace NetProvider.Channels
 {
-    public class SocketChannelFactory<T,C, ReceiveType> : FactoryBase<T> where T : class where C: IReceiveMessage<ReceiveType>, new() where ReceiveType:class
+    public class SocketFactory<T,C, ReceiveType> : FactoryBase<T> where T : class where C: IReceiveMessage<ReceiveType>, new() where ReceiveType:class
     {
         private string _ip;
         private int _port;
         public C ReceiveClass { get;private set; }
         public Encoding Encoding { get; set; } = Encoding.UTF8;
-        public SocketChannelFactory(string ip, int port)
+        public SocketFactory(string ip, int port)
         {
             this._ip = ip;
             this._port = port;
