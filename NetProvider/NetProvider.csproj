@@ -3,6 +3,8 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <AutoGenerateBindingRedirects>false</AutoGenerateBindingRedirects>
+    <Authors>576181574@qq.com</Authors>
+    <Description>只需要定义好你的接口即可轻松连接任何web Service，当前支持get/post/socket方式</Description>
   </PropertyGroup>
 
   <ItemGroup>
