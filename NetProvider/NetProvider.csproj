@@ -5,6 +5,13 @@
     <AutoGenerateBindingRedirects>false</AutoGenerateBindingRedirects>
     <Authors>576181574@qq.com</Authors>
     <Description>只需要定义好你的接口即可轻松连接任何web Service，当前支持get/post/socket方式</Description>
+    <PackageProjectUrl></PackageProjectUrl>
+    <RepositoryUrl>https://github.com/huangchaoggg/NetProvider</RepositoryUrl>
+    <RepositoryType>github</RepositoryType>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DocumentationFile>F:\Visual Studio 2017\repos\NetProvider\NetProvider\NetProvider.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>

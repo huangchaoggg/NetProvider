@@ -1,0 +1,164 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>NetProvider</name>
+    </assembly>
+    <members>
+        <member name="M:NetProvider.Channels.FactoryBase`1.DynamicMethod(System.Reflection.MethodInfo[],System.Reflection.Emit.TypeBuilder,System.Type)">
+            <summary>
+            函数动态处理
+            </summary>
+            <param name="infos"></param>
+            <param name="typeBuilder"></param>
+            <param name="type"></param>
+        </member>
+        <member name="M:NetProvider.Channels.FactoryBase`1.MethodOverride(System.Reflection.MethodInfo,System.Reflection.Emit.TypeBuilder,System.Type)">
+            <summary>
+            重写或实现接口/虚方法
+            </summary>
+            <param name="webNetwork"></param>
+            <param name="info"></param>
+            <param name="iL"></param>
+        </member>
+        <member name="M:NetProvider.Channels.FactoryBase`1.CreateKittyClassStructure(System.Reflection.Emit.TypeBuilder)">
+            <summary>
+            创建无参构造器
+            </summary>
+            <param name="typeBuilder"></param>
+        </member>
+        <member name="T:NetProvider.Channels.ServiceChannel">
+            <summary>
+            定义Web服务通道
+            </summary>
+        </member>
+        <member name="P:NetProvider.Channels.ServiceChannel.HttpWebNetwork">
+            <summary>
+            web访问器
+            </summary>
+        </member>
+        <member name="M:NetProvider.Channels.ServiceChannel.Request(NetProvider.RequestAttribute,System.Reflection.ParameterInfo[],System.Object[])">
+            <summary>
+            请求数据
+            </summary>
+            <param name="channel"></param>
+            <param name="ra"></param>
+            <param name="parameters">参数属性</param>
+            <param name="objs">参数</param>
+            <returns></returns>
+        </member>
+        <member name="M:NetProvider.Channels.ServiceChannel.GetRequest(System.String,System.Reflection.ParameterInfo[],System.Object[])">
+            <summary>
+            get请求处理
+            </summary>
+            <param name="uri"></param>
+            <param name="parameters"></param>
+            <param name="objs"></param>
+            <returns></returns>
+        </member>
+        <member name="M:NetProvider.Channels.ServiceChannel.OtherRequest(System.String,System.Object[])">
+            <summary>
+            其他请求处理
+            </summary>
+            <param name="uri"></param>
+            <param name="objs"></param>
+            <returns></returns>
+        </member>
+        <member name="T:NetProvider.Channels.FileServiceChannel">
+            <summary>
+            定义web上传下载服务通道
+            </summary>
+        </member>
+        <member name="T:NetProvider.Channels.SocketServiceChannel">
+            <summary>
+            定义Socket服务通道
+            </summary>
+        </member>
+        <member name="T:NetProvider.Network.HttpWebHelper">
+            <summary>
+            Htttp帮助类
+            </summary>
+        </member>
+        <member name="M:NetProvider.Network.HttpWebHelper.PathCombine(System.String[])">
+            <summary>
+            将多个URL路径合并成一个
+            </summary>
+            <param name="strs"></param>
+            <returns></returns>
+        </member>
+        <member name="T:NetProvider.Network.HttpWebNetwork">
+            <summary>
+            http请求
+            </summary>
+        </member>
+        <member name="M:NetProvider.Network.Inter.IHttpWebNetwork.GetRequest(System.String)">
+            <summary>
+            请求Get数据
+            </summary>
+            <param name="uri"></param>
+            <returns></returns>
+        </member>
+        <member name="F:NetProvider.RequestType.Get">
+            <summary>
+            向特定的资源发出请求
+            </summary>
+        </member>
+        <member name="F:NetProvider.RequestType.Post">
+            <summary>
+            向指定资源提交数据进行处理请求（例如提交表单或者上传文件）。数据被包含在请求体中。POST请求可能会导致新的资源的创建和/或已有资源的修改
+            </summary>
+        </member>
+        <member name="F:NetProvider.RequestType.Put">
+            <summary>
+            向指定资源位置上传其最新内容
+            </summary>
+        </member>
+        <member name="F:NetProvider.RequestType.Trace">
+            <summary>
+            回显服务器收到的请求，主要用于测试或诊断
+            </summary>
+        </member>
+        <member name="F:NetProvider.RequestType.Delete">
+            <summary>
+            请求服务器删除Request-URI所标识的资源。
+            </summary>
+        </member>
+        <member name="F:NetProvider.RequestType.Options">
+            <summary>
+            返回服务器针对特定资源所支持的HTTP请求方法。也可以利用向Web服务器发送’*’的请求来测试服务器的功能性。
+            </summary>
+        </member>
+        <member name="F:NetProvider.RequestType.Head">
+            <summary>
+            向服务器索要与GET请求相一致的响应，只不过响应体将不会被返回。这一方法可以在不必传输整个响应内容的情况下，就可以获取包含在响应消息头中的元信息
+            </summary>
+        </member>
+        <member name="F:NetProvider.RequestType.Connect">
+            <summary>
+            HTTP/1.1协议中预留给能够将连接改为管道方式的代理服务器。
+            </summary>
+        </member>
+        <member name="M:NetProvider.RequestAttribute.#ctor(NetProvider.RequestType,System.String)">
+            <summary>
+            方法属性
+            </summary>
+            <param name="requestType"></param>
+            <param name="uri"></param>
+        </member>
+        <member name="M:NetProvider.JsonExpand.ToObject(System.String,System.Type)">
+            <summary>
+            将json字符串转换为指定类型对象
+            </summary>
+            <param name="obj"></param>
+            <param name="t"></param>
+            <returns></returns>
+        </member>
+        <member name="M:NetProvider.JsonExpand.ToObject``1(System.String)">
+            <summary>
+            将json字符串转换为指定类型对象
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="str"></param>
+            <returns></returns>
+        </member>
+    </members>
+</doc>
