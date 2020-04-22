@@ -56,19 +56,23 @@ namespace NetProvider.Channels
                     typeof(string),typeof(string),typeof(object[]) });
             iL.Emit(OpCodes.Nop);
             int leth = info.GetParameters().Length;
-            iL.Emit(OpCodes.Ldc_I4, leth);
-            iL.Emit(OpCodes.Newarr, typeof(object));
-            iL.Emit(OpCodes.Dup);
-            for (int i = 0; i < leth; i++)
+            if (leth > 0)
             {
-                iL.Emit(OpCodes.Ldc_I4, i);
-                iL.Emit(OpCodes.Ldarg, i + 1);
-                iL.Emit(OpCodes.Box, ParameterTypes[i]);
-                iL.Emit(OpCodes.Stelem_Ref);
-                if (leth - 1 != i)
-                    iL.Emit(OpCodes.Dup);
+                iL.Emit(OpCodes.Ldc_I4, leth);
+                iL.Emit(OpCodes.Newarr, typeof(object));
+                iL.Emit(OpCodes.Dup);
+                for (int i = 0; i < leth; i++)
+                {
+                    //iL.Emit(OpCodes.Ldloc, lisLb);
+                    iL.Emit(OpCodes.Ldc_I4, i);
+                    iL.Emit(OpCodes.Ldarg, i + 1);
+                    iL.Emit(OpCodes.Box, ParameterTypes[i]);
+                    iL.Emit(OpCodes.Stelem_Ref);
+                    if (leth - 1 != i)
+                        iL.Emit(OpCodes.Dup);
+                }
+                iL.Emit(OpCodes.Stloc, lisLb.LocalIndex);
             }
-            iL.Emit(OpCodes.Stloc, lisLb.LocalIndex);
             iL.Emit(OpCodes.Ldstr, typeof(T).Name);
             iL.Emit(OpCodes.Ldstr, info.Name);
             iL.Emit(OpCodes.Ldloc, lisLb.LocalIndex);

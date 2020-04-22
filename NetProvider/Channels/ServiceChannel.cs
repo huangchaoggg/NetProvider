@@ -43,23 +43,16 @@ namespace NetProvider.Channels
             {
                 throw new MessageException("特性不存在");
             }
-            HttpResponseMessage rd = await Request(ra, parameters, objs);
+
+            HttpResponseMessage rd =await Request(ra, parameters, objs);
             string str = await rd.Content.ReadAsStringAsync();
-            //object value = null;
-            //if (retType.IsGenericType)
-            //{
-            //    Type t = retType.GetGenericArguments()[0];
-            //    if (t == typeof(string))
-            //    {
-            //        value= str;
-            //    }
-            //    value= str.ToObject(t);
-            //}
-            //else
-            //{
-            //    value= str;
-            //}
-            return FilterManagement.Filter(str,retType);
+            if (retType.IsGenericType && retType.BaseType == typeof(Task))
+            {
+                Type t = retType.GetGenericArguments()[0];
+                return FilterManagement.Filter(str, t);
+            }
+
+            return FilterManagement.Filter(str, retType);
         }
         /// <summary>
         /// 请求数据
