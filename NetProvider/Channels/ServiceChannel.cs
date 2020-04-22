@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using NetProvider.Filter;
 using NetProvider.Network;
 using NetProvider.Network.Inter;
 
@@ -32,29 +34,32 @@ namespace NetProvider.Channels
             MethodInfo info = t.GetInterface(parameters.InterfaceName).GetMethod(parameters.MethodName);
             Attribute[] attributes = Attribute.GetCustomAttributes(info);
             return RunMethod(attributes, info.ReturnType, info.GetParameters(), parameters.ParametersInfo);
+            
         }
         public async Task<object> RunMethod(Attribute[] attributes, Type retType, ParameterInfo[] parameters, params object[] objs)
         {
-            RequestAttribute ra = attributes.FirstOrDefault(s => s is RequestAttribute) as RequestAttribute;// Attribute.GetCustomAttribute(call.MethodBase, typeof(RequestAttribute)) as RequestAttribute;
+            RequestAttribute ra = attributes.FirstOrDefault(s => s is RequestAttribute) as RequestAttribute;
             if (ra == null)
             {
                 throw new MessageException("特性不存在");
             }
             HttpResponseMessage rd = await Request(ra, parameters, objs);
             string str = await rd.Content.ReadAsStringAsync();
-            if (retType.IsGenericType)
-            {
-                Type t = retType.GetGenericArguments()[0];
-                if (t == typeof(string))
-                {
-                    return str;
-                }
-                return str.ToObject(t);
-            }
-            else
-            {
-                return str;
-            }
+            //object value = null;
+            //if (retType.IsGenericType)
+            //{
+            //    Type t = retType.GetGenericArguments()[0];
+            //    if (t == typeof(string))
+            //    {
+            //        value= str;
+            //    }
+            //    value= str.ToObject(t);
+            //}
+            //else
+            //{
+            //    value= str;
+            //}
+            return FilterManagement.Filter(str,retType);
         }
         /// <summary>
         /// 请求数据
