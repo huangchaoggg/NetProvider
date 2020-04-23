@@ -1,4 +1,5 @@
 ﻿using NetProvider.EventArgs;
+using NetProvider.Network.Inter;
 using System;
 using System.Net;
 using System.Net.Sockets;
@@ -6,9 +7,9 @@ using System.Text;
 
 namespace NetProvider.Network
 {
-    public class SocketClient
+    public class SocketClient : ISocketClient
     {
-        public SocketClient(string ipString, int port):this(new IPEndPoint(IPAddress.Parse(ipString), port)) 
+        public SocketClient(string ipString, int port) : this(new IPEndPoint(IPAddress.Parse(ipString), port))
         {
         }
 
@@ -16,13 +17,13 @@ namespace NetProvider.Network
         {
             this.IPEndPoint = iPEndPoint;
         }
-        public IPEndPoint IPEndPoint { get;set; }
+        public IPEndPoint IPEndPoint { get; set; }
         #region 内部属性
         private Socket socket;
-        private bool isReceive=true;
+        private bool isReceive = true;
         private bool IsSocketConnected()
         {
-            bool part1 = socket.Poll(2000,SelectMode.SelectRead);
+            bool part1 = socket.Poll(2000, SelectMode.SelectRead);
             bool part2 = (socket.Available == 0);
             if (part1 && part2)
                 return false;
@@ -30,6 +31,9 @@ namespace NetProvider.Network
                 return true;
         }
         #endregion
+        /// <summary>
+        /// 开始连接
+        /// </summary>
         public void StartClient()
         {
             try
@@ -51,7 +55,7 @@ namespace NetProvider.Network
 
                 }, socket);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 ExceptionEvent?.Invoke(this, new ProviderException(e.Message));
             }
@@ -60,31 +64,34 @@ namespace NetProvider.Network
         {
             try
             {
-                socket.BeginSend(buffer, 0, buffer.Length, SocketFlags.None, asyncResult => {
+                socket.BeginSend(buffer, 0, buffer.Length, SocketFlags.None, asyncResult =>
+                {
                     try
                     {
                         if (asyncResult.IsCompleted)
                         {
-                            int sendLength= socket.EndSend(asyncResult);
+                            int sendLength = socket.EndSend(asyncResult);
                             SendMessageEvent?.Invoke(this, new SendMessageArgs(buffer, sendLength));
                         }
-                    }catch(Exception e)
+                    }
+                    catch (Exception e)
                     {
                         ExceptionEvent?.Invoke(this, new ProviderException(e.Message));
                     }
                 }, socket);
-            }catch(Exception e)
+            }
+            catch (Exception e)
             {
                 ExceptionEvent?.Invoke(this, new ProviderException(e.Message));
             }
         }
-        public void SendMessage(string strMsg,Encoding encoding)
+        public void SendMessage(string strMsg, Encoding encoding)
         {
             SendMessage(encoding.GetBytes(strMsg));
         }
         public void SendMessage(string strMsg)
         {
-            SendMessage(strMsg,Encoding.UTF8);
+            SendMessage(strMsg, Encoding.UTF8);
         }
 
         public void ReceiveMessage()
@@ -93,15 +100,16 @@ namespace NetProvider.Network
             {
                 isReceive = true;
                 byte[] buffer = new byte[1024 * 1024 * 2];
-                socket.BeginReceive(buffer, 0, buffer.Length, SocketFlags.None, asyncResult => {
+                socket.BeginReceive(buffer, 0, buffer.Length, SocketFlags.None, asyncResult =>
+                {
                     try
                     {
                         if (asyncResult.IsCompleted)
                         {
-                            int length= socket.EndReceive(asyncResult);
+                            int length = socket.EndReceive(asyncResult);
                             byte[] recBytes = new byte[length];
-                            Array.Copy(buffer,0, recBytes,0,length);
-                            if (isReceive&&IsSocketConnected())
+                            Array.Copy(buffer, 0, recBytes, 0, length);
+                            if (isReceive && IsSocketConnected())
                             {
                                 ReceiveMessage();
                             }
@@ -110,13 +118,14 @@ namespace NetProvider.Network
                                 ReceiveMessageEvent?.Invoke(this, new ReceiveMessageArgs(recBytes));
                             }
                         }
-                    }catch(Exception e)
+                    }
+                    catch (Exception e)
                     {
                         ExceptionEvent?.Invoke(this, new ProviderException(e.Message));
                     }
                 }, socket);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 ExceptionEvent?.Invoke(this, new ProviderException(e.Message));
             }
@@ -132,7 +141,8 @@ namespace NetProvider.Network
             {
                 EndReceiveMessage();
                 socket.Disconnect(true);
-            }catch(Exception e)
+            }
+            catch (Exception e)
             {
                 ExceptionEvent?.Invoke(this, new ProviderException(e.Message));
             }
