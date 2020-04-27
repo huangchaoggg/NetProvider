@@ -34,6 +34,10 @@ namespace NetProvider
         {
            return JsonConvert.SerializeObject(obj);
         }
+        public static string ToJsonString(this object obj,params JsonConverter[] converters)
+        {
+            return JsonConvert.SerializeObject(obj, converters);
+        }
         /// <summary>
         /// 将json字符串转换为指定类型对象
         /// </summary>
@@ -47,8 +51,7 @@ namespace NetProvider
             }
             catch(Exception e)
             {
-                throw new ProviderException("转换出错",e);
-                //return Activator.CreateInstance(t);
+                throw new FormatException($"转换失败:{e.Message}", e);
             }
         }
         /// <summary>
@@ -63,9 +66,9 @@ namespace NetProvider
             {
                 return JsonConvert.DeserializeObject<T>(str);
             }
-            catch
+            catch(Exception e)
             {
-                throw new FormatException("转换失败");
+                throw new ProviderException($"转换失败:{e.Message}",e);
             }
         }
     }

@@ -38,9 +38,9 @@ namespace NetProvider.Network
             StringBuilder sb =new StringBuilder();
             foreach (string s in strs)
             {
-                string[] paths= s.Split('\\', '/');
+                string ns=s.TrimEnd('/', '\\');
+                string[] paths= ns.Split('\\', '/');
                 sb.Append(string.Join("/", paths));
-                sb.Append("/");
             }
             return sb.ToString().TrimEnd('/');
         }

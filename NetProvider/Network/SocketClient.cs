@@ -9,15 +9,28 @@ namespace NetProvider.Network
 {
     public class SocketClient : ISocketClient
     {
-        public SocketClient(string ipString, int port) : this(new IPEndPoint(IPAddress.Parse(ipString), port))
+        public SocketClient(string ipString, int port) : 
+            this(new IPEndPoint(IPAddress.Parse(ipString), port))
         {
         }
 
         public SocketClient(IPEndPoint iPEndPoint)
         {
             this.IPEndPoint = iPEndPoint;
+            ExceptionEvent += SocketClient_ExceptionEvent;
         }
+        private byte number = 0;
+        private void SocketClient_ExceptionEvent(object sender, ProviderException e)
+        {
+            if(e.InnerException is SocketException)
+            {
+                Reconnection();
+                number++;
+            }
+        }
+
         public IPEndPoint IPEndPoint { get; set; }
+        public byte ReconnectionNumber { get; set; } = 3;
         #region 内部属性
         private Socket socket;
         private bool isReceive = true;
@@ -30,11 +43,25 @@ namespace NetProvider.Network
             else
                 return true;
         }
+        /// <summary>
+        /// 短线重连
+        /// </summary>
+        /// <param name="number"></param>
+        private void Reconnection()
+        {
+            if (this.number < this.ReconnectionNumber) { 
+                StartClientAndReceive();
+            }
+            else
+            {
+                this.number = 0;
+            }
+        }
         #endregion
         /// <summary>
         /// 开始连接
         /// </summary>
-        public void StartClient()
+        public void StartClientAndReceive()
         {
             try
             {
@@ -46,18 +73,20 @@ namespace NetProvider.Network
                         if (asyncResult.IsCompleted)
                         {
                             socket.EndConnect(asyncResult);
+                            ReceiveMessage();
+                            ConnectEvent?.Invoke(this, new System.EventArgs());
                         }
                     }
                     catch (Exception e)
                     {
-                        ExceptionEvent?.Invoke(this, new ProviderException(e.Message));
+                        ExceptionEvent?.Invoke(this, new ProviderException(e.Message,e));
                     }
 
                 }, socket);
             }
             catch (Exception e)
             {
-                ExceptionEvent?.Invoke(this, new ProviderException(e.Message));
+                ExceptionEvent?.Invoke(this, new ProviderException(e.Message,e));
             }
         }
         public void SendMessage(byte[] buffer)
@@ -76,13 +105,13 @@ namespace NetProvider.Network
                     }
                     catch (Exception e)
                     {
-                        ExceptionEvent?.Invoke(this, new ProviderException(e.Message));
+                        ExceptionEvent?.Invoke(this, new ProviderException(e.Message,e));
                     }
                 }, socket);
             }
             catch (Exception e)
             {
-                ExceptionEvent?.Invoke(this, new ProviderException(e.Message));
+                ExceptionEvent?.Invoke(this, new ProviderException(e.Message,e));
             }
         }
         public void SendMessage(string strMsg, Encoding encoding)
@@ -94,7 +123,7 @@ namespace NetProvider.Network
             SendMessage(strMsg, Encoding.UTF8);
         }
 
-        public void ReceiveMessage()
+        private void ReceiveMessage()
         {
             try
             {
@@ -121,34 +150,30 @@ namespace NetProvider.Network
                     }
                     catch (Exception e)
                     {
-                        ExceptionEvent?.Invoke(this, new ProviderException(e.Message));
+                        ExceptionEvent?.Invoke(this, new ProviderException(e.Message,e));
                     }
                 }, socket);
             }
             catch (Exception e)
             {
-                ExceptionEvent?.Invoke(this, new ProviderException(e.Message));
+                ExceptionEvent?.Invoke(this, new ProviderException(e.Message,e));
             }
         }
-        public void EndReceiveMessage()
-        {
-            isReceive = false;
-        }
-
         public void Close()
         {
             try
             {
-                EndReceiveMessage();
+                isReceive = false;
                 socket.Disconnect(true);
             }
             catch (Exception e)
             {
-                ExceptionEvent?.Invoke(this, new ProviderException(e.Message));
+                ExceptionEvent?.Invoke(this, new ProviderException(e.Message,e));
             }
         }
         #region 事件处理
 
+        public event EventHandler<System.EventArgs> ConnectEvent;
         public event EventHandler<ProviderException> ExceptionEvent;
         public event EventHandler<SendMessageArgs> SendMessageEvent;
         public event EventHandler<ReceiveMessageArgs> ReceiveMessageEvent;

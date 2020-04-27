@@ -30,5 +30,12 @@ namespace NetProvider.EventArgs
                 return null;
             return JsonConvert.DeserializeObject<T>(str);
         }
+        public T ToObject<T>() where T : class
+        {
+            string str = ToString();
+            if (string.IsNullOrEmpty(str))
+                return null;
+            return JsonConvert.DeserializeObject<T>(str);
+        }
     }
 }

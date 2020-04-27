@@ -58,6 +58,7 @@ namespace NetProvider.Network
         public virtual async Task<HttpResponseMessage> HttpRequest(string uri, RequestType type, string body) {
 
             HttpRequestMessage message = new HttpRequestMessage(new HttpMethod(type.ToString()), uri);
+            //message.Properties.Add();
             HttpContent content=null;
             if (type != RequestType.Get)
             {

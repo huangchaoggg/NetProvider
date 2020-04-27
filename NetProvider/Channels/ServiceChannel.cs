@@ -33,10 +33,10 @@ namespace NetProvider.Channels
             Type t = this.GetType();
             MethodInfo info = t.GetInterface(parameters.InterfaceName).GetMethod(parameters.MethodName);
             Attribute[] attributes = Attribute.GetCustomAttributes(info);
-            return RunMethod(attributes, info.ReturnType, info.GetParameters(), parameters.ParametersInfo);
+            return RunMethod(attributes, info.ReturnType, info.GetParameters(), parameters);
             
         }
-        public async Task<object> RunMethod(Attribute[] attributes, Type retType, ParameterInfo[] parameters, params object[] objs)
+        private async Task<object> RunMethod(Attribute[] attributes, Type retType, ParameterInfo[] parameterInfos, Parameters parameters)
         {
             RequestAttribute ra = attributes.FirstOrDefault(s => s is RequestAttribute) as RequestAttribute;
             if (ra == null)
@@ -44,15 +44,15 @@ namespace NetProvider.Channels
                 throw new MessageException("特性不存在");
             }
 
-            HttpResponseMessage rd =await Request(ra, parameters, objs);
+            HttpResponseMessage rd =await Request(ra, parameterInfos, parameters.ParametersInfo);
             string str = await rd.Content.ReadAsStringAsync();
             if (retType.IsGenericType && retType.BaseType == typeof(Task))
             {
                 Type t = retType.GetGenericArguments()[0];
-                return FilterManagement.Filter(str, t);
+                return FilterManagement.Filter(str, t, parameters,this);
             }
 
-            return FilterManagement.Filter(str, retType);
+            return FilterManagement.Filter(str, retType, parameters, this);
         }
         /// <summary>
         /// 请求数据
@@ -62,7 +62,7 @@ namespace NetProvider.Channels
         /// <param name="parameters">参数属性</param>
         /// <param name="objs">参数</param>
         /// <returns></returns>
-        public async Task<HttpResponseMessage> Request(RequestAttribute ra, ParameterInfo[] parameters, params object[] objs)
+        private async Task<HttpResponseMessage> Request(RequestAttribute ra, ParameterInfo[] parameters, params object[] objs)
         {
             HttpResponseMessage rd = null;
             string uri = HttpWebHelper.PathCombine(Uri, ra.Uri);
@@ -99,8 +99,10 @@ namespace NetProvider.Channels
                     if(objs[p.Position]!=null)
                         sb.Append($" {p.Name}={objs[p.Position].ToString()}&");
                 }
-                string ss = sb.ToString().TrimEnd('&');
-                rd =await HttpWebNetwork.GetRequest($"{uri}?{ss}");
+                string ss = sb.ToString().TrimEnd('&').Trim();
+                string url = $"{uri}?{ss}";
+
+                rd =await HttpWebNetwork.GetRequest(System.Uri.EscapeUriString(url));
             }
             return rd;
         }
@@ -147,8 +149,7 @@ namespace NetProvider.Channels
         }
         public void StartClient()
         {
-            SocketClient.StartClient();
-            SocketClient.ReceiveMessage();
+            SocketClient.StartClientAndReceive();
         }
         public void Close()
         {
