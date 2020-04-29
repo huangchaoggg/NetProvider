@@ -5,19 +5,9 @@ using System.Text;
 
 namespace NetProvider.Network.Inter
 {
-    public interface ISocketClient
+    public interface ISocketClient: ISocketClientBase
     {
         IPEndPoint IPEndPoint { get; set; }
-        byte ReconnectionNumber { get; set; }
-        event EventHandler<System.EventArgs> ConnectEvent;
-        event EventHandler<ProviderException> ExceptionEvent;
-        event EventHandler<ReceiveMessageArgs> ReceiveMessageEvent;
         event EventHandler<SendMessageArgs> SendMessageEvent;
-
-        void Close();
-        void SendMessage(byte[] buffer);
-        void SendMessage(string strMsg);
-        void SendMessage(string strMsg, Encoding encoding);
-        void StartClientAndReceive();
     }
 }

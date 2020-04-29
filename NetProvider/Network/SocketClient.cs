@@ -34,6 +34,15 @@ namespace NetProvider.Network
         #region 内部属性
         private Socket socket;
         private bool isReceive = true;
+        public bool IsReceive {
+            get =>isReceive;
+            set 
+            {
+                isReceive = value;
+                if (value)
+                    ReceiveMessage();
+            } 
+        }
         private bool IsSocketConnected()
         {
             bool part1 = socket.Poll(2000, SelectMode.SelectRead);
@@ -73,7 +82,7 @@ namespace NetProvider.Network
                         if (asyncResult.IsCompleted)
                         {
                             socket.EndConnect(asyncResult);
-                            ReceiveMessage();
+                            isReceive = true;
                             ConnectEvent?.Invoke(this, new System.EventArgs());
                         }
                     }
@@ -127,8 +136,8 @@ namespace NetProvider.Network
         {
             try
             {
-                isReceive = true;
-                byte[] buffer = new byte[1024 * 1024 * 2];
+
+                byte[] buffer = new byte[1024 * 1024];
                 socket.BeginReceive(buffer, 0, buffer.Length, SocketFlags.None, asyncResult =>
                 {
                     try
@@ -138,7 +147,7 @@ namespace NetProvider.Network
                             int length = socket.EndReceive(asyncResult);
                             byte[] recBytes = new byte[length];
                             Array.Copy(buffer, 0, recBytes, 0, length);
-                            if (isReceive && IsSocketConnected())
+                            if(IsReceive && IsSocketConnected())
                             {
                                 ReceiveMessage();
                             }
@@ -150,7 +159,7 @@ namespace NetProvider.Network
                     }
                     catch (Exception e)
                     {
-                        ExceptionEvent?.Invoke(this, new ProviderException(e.Message,e));
+                        ExceptionEvent?.Invoke(this, new ProviderException(e.Message, e));
                     }
                 }, socket);
             }
