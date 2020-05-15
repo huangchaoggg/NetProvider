@@ -28,8 +28,7 @@ namespace NetProvider.Network
 
         public void Close()
         {
-            WebSocket?.CloseAsync().ContinueWith((rt)=> { 
-            });
+            WebSocket?.Close();
         }
 
         public void SendMessage(byte[] buffer)
@@ -80,9 +79,11 @@ namespace NetProvider.Network
         {
             if (WebSocket.State == WebSocketState.Closed || WebSocket.State == WebSocketState.Closing)
             {
-                Reconnection();
+                if (!Reconnection())
+                {
+                    ExceptionEvent?.Invoke(this, new ProviderException("websocket重连失败", e.Exception));
+                }
             }
-            ExceptionEvent?.Invoke(this, new ProviderException("websocket错误",e.Exception));
         }
 
         private void WebSocket_MessageReceived(object sender, MessageReceivedEventArgs e)
