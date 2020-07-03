@@ -1,9 +1,10 @@
-﻿using System.Net.Http;
+﻿using System.IO;
+using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace NetProvider.Network.Inter
 {
-    public interface IHttpWebNetwork:IWebNetwork
+    public interface IHttpWebNetwork : IWebNetwork
     {
         /// <summary>
         /// Http头
@@ -20,7 +21,14 @@ namespace NetProvider.Network.Inter
         Task<HttpResponseMessage> PostRequest(string uri);
 
 
-        Task<HttpResponseMessage> PostRequest(string uri,string body);
+        Task<HttpResponseMessage> PostRequest(string uri, string body);
+        /// <summary>
+        /// 文件流直传
+        /// </summary>
+        /// <param name="uri"></param>
+        /// <param name="body"></param>
+        /// <returns></returns>
+        Task<HttpResponseMessage> PostRequest(string uri, FileStream body);
 
         Task<HttpResponseMessage> HttpRequest(string uri, RequestType type, string body);
     }

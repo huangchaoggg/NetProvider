@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
-using System.Text;
 
 namespace NetProvider.Channels
 {
@@ -18,6 +16,9 @@ namespace NetProvider.Channels
             assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(new AssemblyName("Channels"), AssemblyBuilderAccess.RunAndCollect);//AppDomain.CurrentDomain.DefineDynamicAssembly(new AssemblyName("Channels"), AssemblyBuilderAccess.Run);
             moduleBuilder = assemblyBuilder.DefineDynamicModule("Channels");
         }
+        /// <summary>
+        /// 代理对象实例
+        /// </summary>
         public T Channel { get; protected private set; }
         /// <summary>
         /// 函数动态处理
@@ -88,22 +89,25 @@ namespace NetProvider.Channels
             typeBuilder.DefineMethodOverride(methodBuilder, type.GetMethod(info.Name));
         }
         /// <summary>
-        /// 创建无参构造器
+        /// 创建构造器
         /// </summary>
-        /// <param name="typeBuilder"></param>
-        protected private void CreateKittyClassStructure(TypeBuilder typeBuilder)
+        /// <param name="typeBuilder">类型构造器</param>
+        /// <param name="objType">继承的对象</param>
+        /// <param name="types">参数类型</param>
+        protected private void CreateKittyClassStructure(TypeBuilder typeBuilder,Type objType, params Type[] types)
         {
+            ConstructorInfo objCtor = objType.GetConstructor(types);
 
-            Type objType = typeof(ServiceChannel);
-            ConstructorInfo objCtor = objType.GetConstructor(new Type[1] { typeof(string) });
-
-            Type[] constructorArgs = { typeof(string) };
             var constructorBuilder = typeBuilder.DefineConstructor(
-               MethodAttributes.Public, CallingConventions.Standard, constructorArgs);
+               MethodAttributes.Public, CallingConventions.Standard, types);
             ILGenerator ilOfCtor = constructorBuilder.GetILGenerator();
 
             ilOfCtor.Emit(OpCodes.Ldarg_0);
-            ilOfCtor.Emit(OpCodes.Ldarg_1);
+            for(int i = 1; i <= types.Length; i++)
+            {
+                ilOfCtor.Emit(OpCodes.Ldarg,i);
+                //ilOfCtor.Emit(OpCodes.Ldarg_1);
+            }
             ilOfCtor.Emit(OpCodes.Call, objCtor);
             ilOfCtor.Emit(OpCodes.Nop);
             ilOfCtor.Emit(OpCodes.Ret);

@@ -1,19 +1,22 @@
-﻿using System;
-using System.IO;
-using System.Linq;
+﻿using NetProvider.Network;
+using System;
 using System.Reflection;
 using System.Reflection.Emit;
-using System.Threading.Tasks;
 
 namespace NetProvider.Channels
 {
-    public class ChannelFactory<T>:FactoryBase<T> where T : class
+    public class ChannelFactory<T> : FactoryBase<T> where T : class
     {
         private string uri;
+        private HttpClientSetting clientDefaultSetting= HttpClientSetting.DefaultSetting;
         public ChannelFactory(string uri)
         {
             this.uri = uri;
-            base.Channel= CreateChannel();
+            base.Channel = CreateChannel();
+        }
+        public ChannelFactory(string uri, HttpClientSetting setting):this(uri)
+        {
+            clientDefaultSetting = setting;
         }
         protected private override T CreateChannel()
         {
@@ -22,12 +25,8 @@ namespace NetProvider.Channels
             {
                 MethodInfo[] infos = t.GetMethods();
                 //运行并创建类的新实例
-                TypeBuilder typeBuilder = null;
-
                 //指定名称，访问模式
-
-
-                typeBuilder = moduleBuilder.DefineType(t.Name + "Impl", TypeAttributes.Public |
+                TypeBuilder typeBuilder = moduleBuilder.DefineType(t.Name + "Impl", TypeAttributes.Public |
                     TypeAttributes.Class |
                     TypeAttributes.AutoClass |
                     TypeAttributes.AnsiClass |
@@ -35,10 +34,10 @@ namespace NetProvider.Channels
                     TypeAttributes.AutoLayout
                     , typeof(ServiceChannel));
                 typeBuilder.AddInterfaceImplementation(t);
-                CreateKittyClassStructure(typeBuilder);
+                CreateKittyClassStructure(typeBuilder,typeof(ServiceChannel),typeof(string),typeof(HttpClientSetting));
                 DynamicMethod(infos, typeBuilder, t);
                 Type rt = typeBuilder.CreateTypeInfo().AsType();
-                Object ob = Activator.CreateInstance(rt, uri);
+                Object ob = Activator.CreateInstance(rt, uri, clientDefaultSetting);
                 return ob as T;
             }
             else

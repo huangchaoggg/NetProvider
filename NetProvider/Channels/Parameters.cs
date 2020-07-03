@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Reflection;
-using System.Text;
-
-namespace NetProvider.Channels
+﻿namespace NetProvider.Channels
 {
     public class Parameters
     {

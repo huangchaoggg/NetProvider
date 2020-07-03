@@ -4,15 +4,19 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <AutoGenerateBindingRedirects>false</AutoGenerateBindingRedirects>
     <Authors>576181574@qq.com</Authors>
-    <Description>简单的高并发webService通信库</Description>
+    <Description>web api 客户端通信库</Description>
     <PackageProjectUrl></PackageProjectUrl>
     <RepositoryUrl>https://github.com/huangchaoggg/NetProvider</RepositoryUrl>
     <RepositoryType>github</RepositoryType>
-    <Version>1.0.0-preview-20200423-1</Version>
+    <Version>1.0.0-preview-20200703-2</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DocumentationFile>F:\Visual Studio 2017\repos\NetProvider\NetProvider\NetProvider.xml</DocumentationFile>
+    <DocumentationFile></DocumentationFile>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DocumentationFile>D:\Source\Repos\NetProvider\NetProvider\NetProvider.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>

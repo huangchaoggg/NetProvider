@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Newtonsoft.Json;
 using System.Text;
-using Newtonsoft.Json;
 
 namespace NetProvider.EventArgs
 {
@@ -19,11 +17,11 @@ namespace NetProvider.EventArgs
         }
         public string ToString(Encoding encoding)
         {
-            if(Buffer!=null&&Buffer.Length>0)
+            if (Buffer != null && Buffer.Length > 0)
                 return encoding.GetString(Buffer);
             return string.Empty;
         }
-        public T ToObject<T>(Encoding encoding) where T:class
+        public T ToObject<T>(Encoding encoding) where T : class
         {
             string str = ToString(encoding);
             if (string.IsNullOrEmpty(str))

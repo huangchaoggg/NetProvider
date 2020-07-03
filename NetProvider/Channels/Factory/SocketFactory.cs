@@ -1,17 +1,16 @@
 ﻿using NetProvider.EventArgs;
 using System;
-using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Text;
 
 namespace NetProvider.Channels
 {
-    public class SocketFactory<T,C, ReceiveType> : FactoryBase<T> where T : class where C: IReceiveMessage<ReceiveType>, new() where ReceiveType:class
+    public class SocketFactory<T, C, ReceiveType> : FactoryBase<T> where T : class where C : IReceiveMessage<ReceiveType>, new() where ReceiveType : class
     {
         private string _ip;
         private int _port;
-        public C ReceiveClass { get;private set; }
+        public C ReceiveClass { get; private set; }
         public Encoding Encoding { get; set; } = Encoding.UTF8;
         public SocketFactory(string ip, int port)
         {
@@ -21,7 +20,7 @@ namespace NetProvider.Channels
         private protected override T CreateChannel()
         {
             T cs = Create();
-            SocketServiceChannel socket= cs as SocketServiceChannel;
+            SocketServiceChannel socket = cs as SocketServiceChannel;
             if (socket == null)
             {
                 throw new ProviderException("创建Socket代理失败");
@@ -59,7 +58,7 @@ namespace NetProvider.Channels
                     TypeAttributes.AutoLayout
                     , typeof(SocketServiceChannel));
                 typeBuilder.AddInterfaceImplementation(t);
-                CreateKittyClassStructure(typeBuilder);
+                CreateKittyClassStructure(typeBuilder,typeof(SocketServiceChannel),typeof(string));
                 DynamicMethod(infos, typeBuilder, t);
                 Type rt = typeBuilder.CreateTypeInfo().AsType();
                 Object ob = Activator.CreateInstance(rt, _ip, _port);

@@ -1,14 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using NetProvider.Filter;
+using NetProvider.Network;
+using NetProvider.Network.Inter;
+using System;
+using System.IO;
 using System.Linq;
-using System.Net;
 using System.Net.Http;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-using NetProvider.Filter;
-using NetProvider.Network;
-using NetProvider.Network.Inter;
 
 namespace NetProvider.Channels
 {
@@ -16,25 +15,28 @@ namespace NetProvider.Channels
     /// 定义Web服务通道
     /// </summary>
     //[AOPAttribute]
-    public abstract class ServiceChannel: IServiceChannel
+    public abstract class ServiceChannel : IServiceChannel
     {
         public string Uri { get; private set; }
         /// <summary>
         /// web访问器
         /// </summary>
-        public IHttpWebNetwork HttpWebNetwork { get; set; } = new HttpWebNetwork();
-        public ServiceChannel(string uri)
+        public IHttpWebNetwork HttpWebNetwork { get; set; }
+        public HttpClientSetting ClientSetting { get; }
+        public ServiceChannel(string uri, HttpClientSetting setting)
         {
             this.Uri = uri;
+            this.ClientSetting = setting;
+            HttpWebNetwork = new HttpWebNetwork(setting);
         }
-        
+
         public object Invok(Parameters parameters)
         {
             Type t = this.GetType();
             MethodInfo info = t.GetInterface(parameters.InterfaceName).GetMethod(parameters.MethodName);
             Attribute[] attributes = Attribute.GetCustomAttributes(info);
             return RunMethod(attributes, info.ReturnType, info.GetParameters(), parameters);
-            
+
         }
         private async Task<object> RunMethod(Attribute[] attributes, Type retType, ParameterInfo[] parameterInfos, Parameters parameters)
         {
@@ -44,15 +46,19 @@ namespace NetProvider.Channels
                 throw new MessageException("特性不存在");
             }
 
-            HttpResponseMessage rd =await Request(ra, parameterInfos, parameters.ParametersInfo);
-            string str = await rd.Content.ReadAsStringAsync();
-            if (retType.IsGenericType && retType.BaseType == typeof(Task))
+            HttpResponseMessage rd = await Request(ra, parameterInfos, parameters.ParametersInfo);
+            if (rd.IsSuccessStatusCode)
             {
-                Type t = retType.GetGenericArguments()[0];
-                return FilterManagement.Filter(str, t, parameters,this);
-            }
+                string str = await rd.Content.ReadAsStringAsync();
+                if (retType.IsGenericType && retType.BaseType == typeof(Task))
+                {
+                    Type t = retType.GetGenericArguments()[0];
+                    return FilterManagement.Filter(ClientSetting.Filters, str, t, parameters, this);
+                }
 
-            return FilterManagement.Filter(str, retType, parameters, this);
+                return FilterManagement.Filter(ClientSetting.Filters,str, retType, parameters, this);
+            }
+            throw new MessageException("请求错误");
         }
         /// <summary>
         /// 请求数据
@@ -69,10 +75,10 @@ namespace NetProvider.Channels
             switch (ra.RequestType)
             {
                 case RequestType.Get:
-                    rd =await GetRequest(uri, parameters, objs);
+                    rd = await GetRequest(uri, parameters, objs);
                     break;
                 default:
-                    rd =await OtherRequest(uri, objs);
+                    rd = await PostRequest(uri, objs);
                     break;
             }
             return rd;
@@ -89,30 +95,30 @@ namespace NetProvider.Channels
             HttpResponseMessage rd;
             if (objs == null || objs.Length == 0)
             {
-                rd =await HttpWebNetwork.GetRequest(uri);
+                rd = await HttpWebNetwork.GetRequest(uri);
             }
             else
             {
                 StringBuilder sb = new StringBuilder();
                 foreach (ParameterInfo p in parameters)
                 {
-                    if(objs[p.Position]!=null)
+                    if (objs[p.Position] != null)
                         sb.Append($" {p.Name}={objs[p.Position].ToString()}&");
                 }
                 string ss = sb.ToString().TrimEnd('&').Trim();
                 string url = $"{uri}?{ss}";
 
-                rd =await HttpWebNetwork.GetRequest(System.Uri.EscapeUriString(url));
+                rd = await HttpWebNetwork.GetRequest(System.Uri.EscapeUriString(url));
             }
             return rd;
         }
         /// <summary>
-        /// 其他请求处理
+        /// Post请求处理
         /// </summary>
         /// <param name="uri"></param>
         /// <param name="objs"></param>
         /// <returns></returns>
-        private async Task<HttpResponseMessage> OtherRequest(string uri, params object[] objs)
+        private async Task<HttpResponseMessage> PostRequest(string uri, params object[] objs)
         {
             HttpResponseMessage rd;
             if (objs == null || objs.Length == 0)
@@ -121,8 +127,16 @@ namespace NetProvider.Channels
             }
             else
             {
-                string body = objs[0].ToJsonString();
-                rd =await HttpWebNetwork.PostRequest(uri, body);
+                object obj = objs[0];
+                if (obj is Stream)
+                {
+                    rd = await HttpWebNetwork.PostRequest(uri, (FileStream)obj);
+                }
+                else
+                {
+                    string body = obj.ToJsonString();
+                    rd = await HttpWebNetwork.PostRequest(uri, body);
+                }
             }
             return rd;
         }
@@ -143,9 +157,9 @@ namespace NetProvider.Channels
     public abstract class SocketServiceChannel : ISocketServiceChannel
     {
         public SocketClient SocketClient { get; private set; }
-        public SocketServiceChannel(string ip,int port)
+        public SocketServiceChannel(string ip, int port)
         {
-            this.SocketClient = new SocketClient(ip,port);
+            this.SocketClient = new SocketClient(ip, port);
         }
         public void StartClient()
         {
@@ -158,7 +172,7 @@ namespace NetProvider.Channels
 
         public object Invok(Parameters parameters)
         {
-            string value= parameters.ParametersInfo[0].ToJsonString();
+            string value = parameters.ParametersInfo[0].ToJsonString();
             SocketClient.SendMessage(value);
             return 0;
         }

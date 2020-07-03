@@ -9,7 +9,7 @@ namespace NetProvider.Network
 {
     public class SocketClient : ISocketClient
     {
-        public SocketClient(string ipString, int port) : 
+        public SocketClient(string ipString, int port) :
             this(new IPEndPoint(IPAddress.Parse(ipString), port))
         {
         }
@@ -22,7 +22,7 @@ namespace NetProvider.Network
         private byte number = 0;
         private void SocketClient_ExceptionEvent(object sender, ProviderException e)
         {
-            if(e.InnerException is SocketException)
+            if (e.InnerException is SocketException)
             {
                 Reconnection();
                 number++;
@@ -34,14 +34,15 @@ namespace NetProvider.Network
         #region 内部属性
         private Socket socket;
         private bool isReceive = true;
-        public bool IsReceive {
-            get =>isReceive;
-            set 
+        public bool IsReceive
+        {
+            get => isReceive;
+            set
             {
                 isReceive = value;
                 if (value)
                     ReceiveMessage();
-            } 
+            }
         }
         private bool IsSocketConnected()
         {
@@ -58,7 +59,8 @@ namespace NetProvider.Network
         /// <param name="number"></param>
         private void Reconnection()
         {
-            if (this.number < this.ReconnectionNumber) { 
+            if (this.number < this.ReconnectionNumber)
+            {
                 StartClientAndReceive();
             }
             else
@@ -88,14 +90,14 @@ namespace NetProvider.Network
                     }
                     catch (Exception e)
                     {
-                        ExceptionEvent?.Invoke(this, new ProviderException(e.Message,e));
+                        ExceptionEvent?.Invoke(this, new ProviderException(e.Message, e));
                     }
 
                 }, socket);
             }
             catch (Exception e)
             {
-                ExceptionEvent?.Invoke(this, new ProviderException(e.Message,e));
+                ExceptionEvent?.Invoke(this, new ProviderException(e.Message, e));
             }
         }
         public void SendMessage(byte[] buffer)
@@ -114,13 +116,13 @@ namespace NetProvider.Network
                     }
                     catch (Exception e)
                     {
-                        ExceptionEvent?.Invoke(this, new ProviderException(e.Message,e));
+                        ExceptionEvent?.Invoke(this, new ProviderException(e.Message, e));
                     }
                 }, socket);
             }
             catch (Exception e)
             {
-                ExceptionEvent?.Invoke(this, new ProviderException(e.Message,e));
+                ExceptionEvent?.Invoke(this, new ProviderException(e.Message, e));
             }
         }
         public void SendMessage(string strMsg, Encoding encoding)
@@ -147,7 +149,7 @@ namespace NetProvider.Network
                             int length = socket.EndReceive(asyncResult);
                             byte[] recBytes = new byte[length];
                             Array.Copy(buffer, 0, recBytes, 0, length);
-                            if(IsReceive && IsSocketConnected())
+                            if (IsReceive && IsSocketConnected())
                             {
                                 ReceiveMessage();
                             }
@@ -165,7 +167,7 @@ namespace NetProvider.Network
             }
             catch (Exception e)
             {
-                ExceptionEvent?.Invoke(this, new ProviderException(e.Message,e));
+                ExceptionEvent?.Invoke(this, new ProviderException(e.Message, e));
             }
         }
         public void Close()
@@ -177,7 +179,7 @@ namespace NetProvider.Network
             }
             catch (Exception e)
             {
-                ExceptionEvent?.Invoke(this, new ProviderException(e.Message,e));
+                ExceptionEvent?.Invoke(this, new ProviderException(e.Message, e));
             }
         }
         #region 事件处理

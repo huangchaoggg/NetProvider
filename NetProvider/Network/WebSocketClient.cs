@@ -1,11 +1,7 @@
 ﻿using NetProvider.EventArgs;
 using NetProvider.Network.Inter;
 using System;
-using System.Collections.Generic;
-using System.Net;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using WebSocket4Net;
 
 namespace NetProvider.Network
@@ -17,8 +13,11 @@ namespace NetProvider.Network
         {
             this.Uri = uri;
         }
-        public Uri Uri { get; set ; }
+        public Uri Uri { get; set; }
         public WebSocket WebSocket { get; private set; }
+        /// <summary>
+        /// 请求重试次数
+        /// </summary>
         public byte ReconnectionNumber { get; set; } = 4;
         public event EventHandler<System.EventArgs> ConnectEvent;
         public event EventHandler<ProviderException> ExceptionEvent;
@@ -45,30 +44,31 @@ namespace NetProvider.Network
         {
             SendMessage(encoding.GetBytes(strMsg));
         }
-        private bool Reconnection(int index=0)
+        private bool Reconnection(int index = 0)
         {
-            if(index>= ReconnectionNumber)
+            if (index >= ReconnectionNumber)
             {
                 return false;
             }
-            if (WebSocket==null||
+            if (WebSocket == null ||
                 WebSocket.State == WebSocketState.Closed ||
-                WebSocket.State== WebSocketState.Closing)
+                WebSocket.State == WebSocketState.Closing)
             {
                 WebSocket = new WebSocket(Uri.AbsoluteUri);
                 WebSocket.DataReceived += WebSocket_DataReceived;
                 WebSocket.MessageReceived += WebSocket_MessageReceived;
                 WebSocket.Opened += WebSocket_Opened;
-                WebSocket.ReceiveBufferSize = 4096;
+                //WebSocket.ReceiveBufferSize = 4096;
                 WebSocket.Error += WebSocket_Error;
-                WebSocket.AutoSendPingInterval = 20;
+                //WebSocket.AutoSendPingInterval = 20;
             }
             try
             {
                 WebSocket?.Open();
                 return true;
 
-            }catch(Exception e)
+            }
+            catch (Exception e)
             {
                 Close();
                 return Reconnection(index++);
@@ -88,7 +88,7 @@ namespace NetProvider.Network
 
         private void WebSocket_MessageReceived(object sender, MessageReceivedEventArgs e)
         {
-             MessageReceived?.Invoke(this, e);
+            MessageReceived?.Invoke(this, e);
         }
 
         private void WebSocket_Opened(object sender, System.EventArgs e)

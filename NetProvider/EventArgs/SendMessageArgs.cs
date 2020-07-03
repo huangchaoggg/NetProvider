@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace NetProvider.EventArgs
+﻿namespace NetProvider.EventArgs
 {
     public sealed class SendMessageArgs
     {

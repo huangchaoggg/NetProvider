@@ -1,9 +1,5 @@
-﻿using System;
-using System.Net;
-using NetProvider.Channels;
-using Newtonsoft.Json;
-using System.Collections.Generic;
-using System.Security.Permissions;
+﻿using Newtonsoft.Json;
+using System;
 
 namespace NetProvider
 {
@@ -19,7 +15,8 @@ namespace NetProvider
         /// </summary>
         /// <param name="requestType"></param>
         /// <param name="uri"></param>
-        public RequestAttribute(RequestType requestType,string uri) {
+        public RequestAttribute(RequestType requestType, string uri)
+        {
             RequestType = requestType;
             Uri = uri;
         }
@@ -32,9 +29,9 @@ namespace NetProvider
     {
         public static string ToJsonString(this object obj)
         {
-           return JsonConvert.SerializeObject(obj);
+            return JsonConvert.SerializeObject(obj);
         }
-        public static string ToJsonString(this object obj,params JsonConverter[] converters)
+        public static string ToJsonString(this object obj, params JsonConverter[] converters)
         {
             return JsonConvert.SerializeObject(obj, converters);
         }
@@ -44,12 +41,13 @@ namespace NetProvider
         /// <param name="obj"></param>
         /// <param name="t"></param>
         /// <returns></returns>
-        public static object ToObject(this string obj,Type t) {
+        public static object ToObject(this string obj, Type t)
+        {
             try
             {
-                return JsonConvert.DeserializeObject(obj.ToString(),t);
+                return JsonConvert.DeserializeObject(obj.ToString(), t);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 throw new FormatException($"转换失败:{e.Message}", e);
             }
@@ -60,15 +58,15 @@ namespace NetProvider
         /// <typeparam name="T"></typeparam>
         /// <param name="str"></param>
         /// <returns></returns>
-        public static T ToObject<T>(this string str) where T:class
+        public static T ToObject<T>(this string str) where T : class
         {
             try
             {
                 return JsonConvert.DeserializeObject<T>(str);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
-                throw new ProviderException($"转换失败:{e.Message}",e);
+                throw new ProviderException($"转换失败:{e.Message}", e);
             }
         }
     }

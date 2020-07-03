@@ -4,6 +4,11 @@
         <name>NetProvider</name>
     </assembly>
     <members>
+        <member name="P:NetProvider.Channels.FactoryBase`1.Channel">
+            <summary>
+            代理对象实例
+            </summary>
+        </member>
         <member name="M:NetProvider.Channels.FactoryBase`1.DynamicMethod(System.Reflection.MethodInfo[],System.Reflection.Emit.TypeBuilder,System.Type)">
             <summary>
             函数动态处理
@@ -20,11 +25,13 @@
             <param name="info"></param>
             <param name="iL"></param>
         </member>
-        <member name="M:NetProvider.Channels.FactoryBase`1.CreateKittyClassStructure(System.Reflection.Emit.TypeBuilder)">
+        <member name="M:NetProvider.Channels.FactoryBase`1.CreateKittyClassStructure(System.Reflection.Emit.TypeBuilder,System.Type,System.Type[])">
             <summary>
-            创建无参构造器
+            创建构造器
             </summary>
-            <param name="typeBuilder"></param>
+            <param name="typeBuilder">类型构造器</param>
+            <param name="objType">继承的对象</param>
+            <param name="types">参数类型</param>
         </member>
         <member name="T:NetProvider.Channels.ServiceChannel">
             <summary>
@@ -55,9 +62,9 @@
             <param name="objs"></param>
             <returns></returns>
         </member>
-        <member name="M:NetProvider.Channels.ServiceChannel.OtherRequest(System.String,System.Object[])">
+        <member name="M:NetProvider.Channels.ServiceChannel.PostRequest(System.String,System.Object[])">
             <summary>
-            其他请求处理
+            Post请求处理
             </summary>
             <param name="uri"></param>
             <param name="objs"></param>
@@ -73,6 +80,23 @@
             定义Socket服务通道
             </summary>
         </member>
+        <member name="P:NetProvider.Network.HttpClientSetting.DefaultContentHeaders">
+            <summary>
+            默认内容头
+            </summary>
+        </member>
+        <member name="M:NetProvider.Network.HttpClientSetting.SetHeader(System.String,System.String)">
+            <summary>
+            设置heder
+            </summary>
+            <param name="v1"></param>
+            <param name="v2"></param>
+        </member>
+        <member name="P:NetProvider.Network.HttpClientSetting.DefaultSetting">
+            <summary>
+            HttpClient默认配置
+            </summary>
+        </member>
         <member name="T:NetProvider.Network.HttpWebHelper">
             <summary>
             Htttp帮助类
@@ -80,7 +104,7 @@
         </member>
         <member name="M:NetProvider.Network.HttpWebHelper.PathCombine(System.String[])">
             <summary>
-            将多个URL路径合并成一个
+            URL拼接
             </summary>
             <param name="strs"></param>
             <returns></returns>
@@ -90,12 +114,44 @@
             http请求
             </summary>
         </member>
+        <member name="M:NetProvider.Network.HttpWebNetwork.PostRequest(System.String,System.IO.FileStream)">
+            <summary>
+            文件上载
+            </summary>
+            <param name="uri"></param>
+            <param name="body"></param>
+            <returns></returns>
+        </member>
         <member name="M:NetProvider.Network.Inter.IHttpWebNetwork.GetRequest(System.String)">
             <summary>
             请求Get数据
             </summary>
             <param name="uri"></param>
             <returns></returns>
+        </member>
+        <member name="M:NetProvider.Network.Inter.IHttpWebNetwork.PostRequest(System.String,System.IO.FileStream)">
+            <summary>
+            文件流直传
+            </summary>
+            <param name="uri"></param>
+            <param name="body"></param>
+            <returns></returns>
+        </member>
+        <member name="M:NetProvider.Network.SocketClient.Reconnection">
+            <summary>
+            短线重连
+            </summary>
+            <param name="number"></param>
+        </member>
+        <member name="M:NetProvider.Network.SocketClient.StartClientAndReceive">
+            <summary>
+            开始连接
+            </summary>
+        </member>
+        <member name="P:NetProvider.Network.WebSocketClient.ReconnectionNumber">
+            <summary>
+            请求重试次数
+            </summary>
         </member>
         <member name="F:NetProvider.RequestType.Get">
             <summary>
@@ -112,29 +168,9 @@
             向指定资源位置上传其最新内容
             </summary>
         </member>
-        <member name="F:NetProvider.RequestType.Trace">
-            <summary>
-            回显服务器收到的请求，主要用于测试或诊断
-            </summary>
-        </member>
         <member name="F:NetProvider.RequestType.Delete">
             <summary>
             请求服务器删除Request-URI所标识的资源。
-            </summary>
-        </member>
-        <member name="F:NetProvider.RequestType.Options">
-            <summary>
-            返回服务器针对特定资源所支持的HTTP请求方法。也可以利用向Web服务器发送’*’的请求来测试服务器的功能性。
-            </summary>
-        </member>
-        <member name="F:NetProvider.RequestType.Head">
-            <summary>
-            向服务器索要与GET请求相一致的响应，只不过响应体将不会被返回。这一方法可以在不必传输整个响应内容的情况下，就可以获取包含在响应消息头中的元信息
-            </summary>
-        </member>
-        <member name="F:NetProvider.RequestType.Connect">
-            <summary>
-            HTTP/1.1协议中预留给能够将连接改为管道方式的代理服务器。
             </summary>
         </member>
         <member name="M:NetProvider.RequestAttribute.#ctor(NetProvider.RequestType,System.String)">
