@@ -94,7 +94,7 @@ namespace NetProvider.Channels
         /// <param name="typeBuilder">类型构造器</param>
         /// <param name="objType">继承的对象</param>
         /// <param name="types">参数类型</param>
-        protected private void CreateKittyClassStructure(TypeBuilder typeBuilder,Type objType, params Type[] types)
+        protected private void CreateKittyClassStructure(TypeBuilder typeBuilder, Type objType, params Type[] types)
         {
             ConstructorInfo objCtor = objType.GetConstructor(types);
 
@@ -103,9 +103,9 @@ namespace NetProvider.Channels
             ILGenerator ilOfCtor = constructorBuilder.GetILGenerator();
 
             ilOfCtor.Emit(OpCodes.Ldarg_0);
-            for(int i = 1; i <= types.Length; i++)
+            for (int i = 1; i <= types.Length; i++)
             {
-                ilOfCtor.Emit(OpCodes.Ldarg,i);
+                ilOfCtor.Emit(OpCodes.Ldarg, i);
                 //ilOfCtor.Emit(OpCodes.Ldarg_1);
             }
             ilOfCtor.Emit(OpCodes.Call, objCtor);

@@ -5,10 +5,12 @@
     <AutoGenerateBindingRedirects>false</AutoGenerateBindingRedirects>
     <Authors>576181574@qq.com</Authors>
     <Description>web api 客户端通信库</Description>
-    <PackageProjectUrl></PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/huangchaoggg/NetProvider</PackageProjectUrl>
     <RepositoryUrl>https://github.com/huangchaoggg/NetProvider</RepositoryUrl>
     <RepositoryType>github</RepositoryType>
-    <Version>1.0.0-preview-20200703-2</Version>
+    <Version>1.0.1</Version>
+    <AssemblyVersion>1.0.1.0</AssemblyVersion>
+    <FileVersion>1.0.1.0</FileVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">

@@ -56,7 +56,7 @@ namespace NetProvider.Channels
                     return FilterManagement.Filter(ClientSetting.Filters, str, t, parameters, this);
                 }
 
-                return FilterManagement.Filter(ClientSetting.Filters,str, retType, parameters, this);
+                return FilterManagement.Filter(ClientSetting.Filters, str, retType, parameters, this);
             }
             throw new MessageException("请求错误");
         }

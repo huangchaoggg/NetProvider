@@ -18,10 +18,10 @@ namespace NetProvider.Network
             this.clientSetting = clientSetting;
             httpClient = clientSetting.Client;
         }
-        private HttpClient httpClient =null;
+        private HttpClient httpClient = null;
         public async Task<HttpResponseMessage> GetRequest(string uri)
         {
-            return await HttpRequest(uri,RequestType.Get,null);
+            return await HttpRequest(uri, RequestType.Get, null);
         }
 
         public async Task<HttpResponseMessage> PostRequest(string uri)

@@ -30,9 +30,9 @@ namespace NetProvider.Network
         /// <summary>
         /// 默认内容头
         /// </summary>
-        public Dictionary<string,string> DefaultContentHeaders { get; private set;} =new Dictionary<string, string>();
+        public Dictionary<string, string> DefaultContentHeaders { get; private set; } = new Dictionary<string, string>();
         public List<IFilter> Filters { get; } = new List<IFilter>();
-        public HttpClient Client { get;private set; }
+        public HttpClient Client { get; private set; }
         /// <summary>
         /// 设置heder
         /// </summary>
@@ -42,13 +42,13 @@ namespace NetProvider.Network
         {
             try
             {
-                if(!Client.DefaultRequestHeaders.TryAddWithoutValidation(v1, v2))
+                if (!Client.DefaultRequestHeaders.TryAddWithoutValidation(v1, v2))
                 {
                     Client.DefaultRequestHeaders.Remove(v1);
                     Client.DefaultRequestHeaders.Add(v1, v2);
                 }
             }
-            catch(InvalidOperationException ex)
+            catch (InvalidOperationException ex)
             {
                 if (DefaultContentHeaders.ContainsKey(v1))
                 {

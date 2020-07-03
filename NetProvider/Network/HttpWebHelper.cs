@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Net;
-using System.Net.Http;
-using System.Text;
+﻿using System.Text;
 
 namespace NetProvider.Network
 {
@@ -11,26 +7,6 @@ namespace NetProvider.Network
     /// </summary>
     public static class HttpWebHelper
     {
-        //static HttpWebHelper()
-        //{
-        //    HttpClientHandler handler = new HttpClientHandler();
-        //    handler.UseDefaultCredentials = true;
-        //    handler.UseCookies = true;
-        //    handler.AllowAutoRedirect = true;
-        //    handler.AutomaticDecompression = DecompressionMethods.GZip;
-        //    handler.ClientCertificateOptions = ClientCertificateOption.Automatic;
-        //    handler.CookieContainer = CookieContainer;
-        //    HttpClientCurrent = new HttpClient(handler);
-        //    HttpClientCurrent.Timeout = new TimeSpan(0, 0, 10);
-        //}
-        //public static HttpClient HttpClientCurrent { get; private set; }
-        //public static CookieContainer CookieContainer { get; private set; } = new CookieContainer();
-        //public static Dictionary<string, string> ContentHeaders { get; private set; } = new Dictionary<string, string>();
-        /// <summary>
-        /// URL拼接
-        /// </summary>
-        /// <param name="strs"></param>
-        /// <returns></returns>
         public static string PathCombine(params string[] strs)
         {
             StringBuilder sb = new StringBuilder();

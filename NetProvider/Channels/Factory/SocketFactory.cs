@@ -58,7 +58,7 @@ namespace NetProvider.Channels
                     TypeAttributes.AutoLayout
                     , typeof(SocketServiceChannel));
                 typeBuilder.AddInterfaceImplementation(t);
-                CreateKittyClassStructure(typeBuilder,typeof(SocketServiceChannel),typeof(string));
+                CreateKittyClassStructure(typeBuilder, typeof(SocketServiceChannel), typeof(string));
                 DynamicMethod(infos, typeBuilder, t);
                 Type rt = typeBuilder.CreateTypeInfo().AsType();
                 Object ob = Activator.CreateInstance(rt, _ip, _port);

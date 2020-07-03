@@ -8,13 +8,13 @@ namespace NetProvider.Channels
     public class ChannelFactory<T> : FactoryBase<T> where T : class
     {
         private string uri;
-        private HttpClientSetting clientDefaultSetting= HttpClientSetting.DefaultSetting;
+        private HttpClientSetting clientDefaultSetting = HttpClientSetting.DefaultSetting;
         public ChannelFactory(string uri)
         {
             this.uri = uri;
             base.Channel = CreateChannel();
         }
-        public ChannelFactory(string uri, HttpClientSetting setting):this(uri)
+        public ChannelFactory(string uri, HttpClientSetting setting) : this(uri)
         {
             clientDefaultSetting = setting;
         }
@@ -34,7 +34,7 @@ namespace NetProvider.Channels
                     TypeAttributes.AutoLayout
                     , typeof(ServiceChannel));
                 typeBuilder.AddInterfaceImplementation(t);
-                CreateKittyClassStructure(typeBuilder,typeof(ServiceChannel),typeof(string),typeof(HttpClientSetting));
+                CreateKittyClassStructure(typeBuilder, typeof(ServiceChannel), typeof(string), typeof(HttpClientSetting));
                 DynamicMethod(infos, typeBuilder, t);
                 Type rt = typeBuilder.CreateTypeInfo().AsType();
                 Object ob = Activator.CreateInstance(rt, uri, clientDefaultSetting);

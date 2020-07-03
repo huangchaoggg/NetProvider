@@ -7,7 +7,7 @@ namespace NetProvider.Filter
 {
     internal static class FilterManagement
     {
-        internal static object Filter(List<IFilter> Filters,object value, Type retType, Parameters parameters, ServiceChannel serviceChannel, IList<IFilter> usFilter = null)
+        internal static object Filter(List<IFilter> Filters, object value, Type retType, Parameters parameters, ServiceChannel serviceChannel, IList<IFilter> usFilter = null)
         {
             if (usFilter == null)
             {
@@ -22,7 +22,7 @@ namespace NetProvider.Filter
             {
                 object v = filter.Filter(value, retType, parameters, serviceChannel);
                 usFilter.Add(filter);
-                return Filter(Filters,v, retType, parameters, serviceChannel, usFilter);
+                return Filter(Filters, v, retType, parameters, serviceChannel, usFilter);
             }
         }
     }
