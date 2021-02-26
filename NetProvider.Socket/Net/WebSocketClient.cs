@@ -1,10 +1,11 @@
-﻿using NetProvider.EventArgs;
-using NetProvider.Network.Inter;
+﻿using NetProvider.Core;
+using NetProvider.Sock.EventArgs;
+using NetProvider.Sock.Net.Inter;
 using System;
 using System.Text;
 using WebSocket4Net;
 
-namespace NetProvider.Network
+namespace NetProvider.Sock.Net
 {
     public class WebSocketClient : IWebSocketClient
     {
@@ -13,6 +14,7 @@ namespace NetProvider.Network
         {
             this.Uri = uri;
         }
+
         public Uri Uri { get; set; }
         public WebSocket WebSocket { get; private set; }
         /// <summary>

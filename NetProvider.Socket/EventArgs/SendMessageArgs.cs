@@ -1,4 +1,4 @@
-﻿namespace NetProvider.EventArgs
+﻿namespace NetProvider.Sock.EventArgs
 {
     public sealed class SendMessageArgs
     {

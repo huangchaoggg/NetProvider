@@ -1,10 +1,12 @@
-﻿using NetProvider.EventArgs;
+﻿using NetProvider.Core;
+using NetProvider.Core.Channels;
+using NetProvider.Sock.EventArgs;
 using System;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Text;
 
-namespace NetProvider.Channels
+namespace NetProvider.Sock.Factory
 {
     public class SocketFactory<T, C, ReceiveType> : FactoryBase<T> where T : class where C : IReceiveMessage<ReceiveType>, new() where ReceiveType : class
     {
@@ -17,10 +19,10 @@ namespace NetProvider.Channels
             this._ip = ip;
             this._port = port;
         }
-        private protected override T CreateChannel()
+        protected override T CreateChannel()
         {
             T cs = Create();
-            SocketServiceChannel socket = cs as SocketServiceChannel;
+            ISocketServiceChannel socket = cs as SocketServiceChannel;
             if (socket == null)
             {
                 throw new ProviderException("创建Socket代理失败");
@@ -48,17 +50,15 @@ namespace NetProvider.Channels
                 TypeBuilder typeBuilder = null;
 
                 //指定名称，访问模式
-
-
                 typeBuilder = moduleBuilder.DefineType(t.Name + "Impl", TypeAttributes.Public |
                     TypeAttributes.Class |
                     TypeAttributes.AutoClass |
                     TypeAttributes.AnsiClass |
                     TypeAttributes.BeforeFieldInit |
                     TypeAttributes.AutoLayout
-                    , typeof(SocketServiceChannel));
+                    , typeof(ISocketServiceChannel));
                 typeBuilder.AddInterfaceImplementation(t);
-                CreateKittyClassStructure(typeBuilder, typeof(SocketServiceChannel), typeof(string));
+                CreateKittyClassStructure(typeBuilder, typeof(ISocketServiceChannel), typeof(string));
                 DynamicMethod(infos, typeBuilder, t);
                 Type rt = typeBuilder.CreateTypeInfo().AsType();
                 Object ob = Activator.CreateInstance(rt, _ip, _port);
@@ -69,6 +69,8 @@ namespace NetProvider.Channels
                 return Activator.CreateInstance<T>();
             }
         }
+
+
         public event EventHandler<ProviderException> ExceptionEvent;
         public event EventHandler<SendMessageArgs> SendMessageEvent;
         public event EventHandler<ReceiveMessageArgs> ReceiveMessageEvent;
