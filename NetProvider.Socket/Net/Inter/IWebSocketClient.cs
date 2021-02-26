@@ -1,7 +1,7 @@
 ﻿using System;
 using WebSocket4Net;
 
-namespace NetProvider.Network.Inter
+namespace NetProvider.Sock.Net.Inter
 {
     public interface IWebSocketClient : ISocketClientBase
     {

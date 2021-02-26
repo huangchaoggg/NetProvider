@@ -101,6 +101,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\NetProvider.Core\NetProvider.Core.csproj">
+      <Project>{52f7bed2-db52-4281-9300-c3a564c6e0ef}</Project>
+      <Name>NetProvider.Core</Name>
+    </ProjectReference>
     <ProjectReference Include="..\NetProvider\NetProvider.csproj">
       <Project>{bd12be74-399d-4c16-8122-d005c3d0c631}</Project>
       <Name>NetProvider</Name>

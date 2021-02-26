@@ -1,26 +1,9 @@
 ﻿using Newtonsoft.Json;
+
 using System;
 
-namespace NetProvider
+namespace NetProvider.Core
 {
-    [AttributeUsage(AttributeTargets.Method)]
-    public class RequestAttribute : Attribute
-    {
-        public RequestType RequestType { get; set; }
-
-        public string Uri { get; set; }
-
-        /// <summary>
-        /// 方法属性
-        /// </summary>
-        /// <param name="requestType"></param>
-        /// <param name="uri"></param>
-        public RequestAttribute(RequestType requestType, string uri)
-        {
-            RequestType = requestType;
-            Uri = uri;
-        }
-    }
     //public class SocketSendAttribute : Attribute { }
 
     //public class SocketReceiveAttribute : Attribute { }

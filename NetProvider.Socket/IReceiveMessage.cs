@@ -1,4 +1,4 @@
-﻿namespace NetProvider
+﻿namespace NetProvider.Sock
 {
     public interface IReceiveMessage<T> where T : class
     {
