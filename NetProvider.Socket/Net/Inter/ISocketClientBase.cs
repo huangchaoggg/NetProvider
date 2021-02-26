@@ -1,8 +1,10 @@
-﻿using NetProvider.EventArgs;
+﻿using NetProvider.Core;
+using NetProvider.Sock.EventArgs;
+
 using System;
 using System.Text;
 
-namespace NetProvider.Network.Inter
+namespace NetProvider.Sock.Net.Inter
 {
     public interface ISocketClientBase
     {

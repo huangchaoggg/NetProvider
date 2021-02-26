@@ -4,46 +4,22 @@
         <name>NetProvider</name>
     </assembly>
     <members>
-        <member name="P:NetProvider.Channels.FactoryBase`1.Channel">
-            <summary>
-            代理对象实例
-            </summary>
-        </member>
-        <member name="M:NetProvider.Channels.FactoryBase`1.DynamicMethod(System.Reflection.MethodInfo[],System.Reflection.Emit.TypeBuilder,System.Type)">
-            <summary>
-            函数动态处理
-            </summary>
-            <param name="infos"></param>
-            <param name="typeBuilder"></param>
-            <param name="type"></param>
-        </member>
-        <member name="M:NetProvider.Channels.FactoryBase`1.MethodOverride(System.Reflection.MethodInfo,System.Reflection.Emit.TypeBuilder,System.Type)">
-            <summary>
-            重写或实现接口/虚方法
-            </summary>
-            <param name="webNetwork"></param>
-            <param name="info"></param>
-            <param name="iL"></param>
-        </member>
-        <member name="M:NetProvider.Channels.FactoryBase`1.CreateKittyClassStructure(System.Reflection.Emit.TypeBuilder,System.Type,System.Type[])">
-            <summary>
-            创建构造器
-            </summary>
-            <param name="typeBuilder">类型构造器</param>
-            <param name="objType">继承的对象</param>
-            <param name="types">参数类型</param>
-        </member>
-        <member name="T:NetProvider.Channels.ServiceChannel">
-            <summary>
-            定义Web服务通道
-            </summary>
-        </member>
-        <member name="P:NetProvider.Channels.ServiceChannel.HttpWebNetwork">
+        <member name="P:NetProvider.Factory.IWebApiServiceChannel.HttpWebNetwork">
             <summary>
             web访问器
             </summary>
         </member>
-        <member name="M:NetProvider.Channels.ServiceChannel.Request(NetProvider.RequestAttribute,System.Reflection.ParameterInfo[],System.Object[])">
+        <member name="T:NetProvider.Factory.ServiceChannel">
+            <summary>
+            定义Web服务通道
+            </summary>
+        </member>
+        <member name="P:NetProvider.Factory.ServiceChannel.HttpWebNetwork">
+            <summary>
+            web访问器
+            </summary>
+        </member>
+        <member name="M:NetProvider.Factory.ServiceChannel.Request(NetProvider.Network.RequestAttribute,System.Reflection.ParameterInfo[],System.Object[])">
             <summary>
             请求数据
             </summary>
@@ -53,7 +29,7 @@
             <param name="objs">参数</param>
             <returns></returns>
         </member>
-        <member name="M:NetProvider.Channels.ServiceChannel.GetRequest(System.String,System.Reflection.ParameterInfo[],System.Object[])">
+        <member name="M:NetProvider.Factory.ServiceChannel.GetRequest(System.String,System.Reflection.ParameterInfo[],System.Object[])">
             <summary>
             get请求处理
             </summary>
@@ -62,7 +38,7 @@
             <param name="objs"></param>
             <returns></returns>
         </member>
-        <member name="M:NetProvider.Channels.ServiceChannel.PostRequest(System.String,System.Object[])">
+        <member name="M:NetProvider.Factory.ServiceChannel.PostRequest(System.String,System.Object[])">
             <summary>
             Post请求处理
             </summary>
@@ -70,14 +46,9 @@
             <param name="objs"></param>
             <returns></returns>
         </member>
-        <member name="T:NetProvider.Channels.FileServiceChannel">
+        <member name="T:NetProvider.Factory.FileServiceChannel">
             <summary>
             定义web上传下载服务通道
-            </summary>
-        </member>
-        <member name="T:NetProvider.Channels.SocketServiceChannel">
-            <summary>
-            定义Socket服务通道
             </summary>
         </member>
         <member name="P:NetProvider.Network.HttpClientSetting.DefaultContentHeaders">
@@ -101,13 +72,6 @@
             <summary>
             Htttp帮助类
             </summary>
-        </member>
-        <member name="M:NetProvider.Network.HttpWebHelper.PathCombine(System.String[])">
-            <summary>
-            URL拼接
-            </summary>
-            <param name="strs"></param>
-            <returns></returns>
         </member>
         <member name="T:NetProvider.Network.HttpWebNetwork">
             <summary>
@@ -137,21 +101,12 @@
             <param name="body"></param>
             <returns></returns>
         </member>
-        <member name="M:NetProvider.Network.SocketClient.Reconnection">
+        <member name="M:NetProvider.Network.RequestAttribute.#ctor(NetProvider.RequestType,System.String)">
             <summary>
-            短线重连
+            方法属性
             </summary>
-            <param name="number"></param>
-        </member>
-        <member name="M:NetProvider.Network.SocketClient.StartClientAndReceive">
-            <summary>
-            开始连接
-            </summary>
-        </member>
-        <member name="P:NetProvider.Network.WebSocketClient.ReconnectionNumber">
-            <summary>
-            请求重试次数
-            </summary>
+            <param name="requestType"></param>
+            <param name="uri"></param>
         </member>
         <member name="F:NetProvider.RequestType.Get">
             <summary>
@@ -172,29 +127,6 @@
             <summary>
             请求服务器删除Request-URI所标识的资源。
             </summary>
-        </member>
-        <member name="M:NetProvider.RequestAttribute.#ctor(NetProvider.RequestType,System.String)">
-            <summary>
-            方法属性
-            </summary>
-            <param name="requestType"></param>
-            <param name="uri"></param>
-        </member>
-        <member name="M:NetProvider.JsonExpand.ToObject(System.String,System.Type)">
-            <summary>
-            将json字符串转换为指定类型对象
-            </summary>
-            <param name="obj"></param>
-            <param name="t"></param>
-            <returns></returns>
-        </member>
-        <member name="M:NetProvider.JsonExpand.ToObject``1(System.String)">
-            <summary>
-            将json字符串转换为指定类型对象
-            </summary>
-            <typeparam name="T"></typeparam>
-            <param name="str"></param>
-            <returns></returns>
         </member>
     </members>
 </doc>

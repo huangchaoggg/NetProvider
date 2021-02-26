@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System.Text;
 
-namespace NetProvider.EventArgs
+namespace NetProvider.Sock.EventArgs
 {
     public sealed class ReceiveMessageArgs
     {

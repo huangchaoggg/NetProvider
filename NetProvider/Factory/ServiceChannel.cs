@@ -1,6 +1,9 @@
-﻿using NetProvider.Filter;
+﻿using NetProvider.Core;
+using NetProvider.Core.Channels;
+using NetProvider.Core.Filter;
 using NetProvider.Network;
 using NetProvider.Network.Inter;
+
 using System;
 using System.IO;
 using System.Linq;
@@ -9,13 +12,13 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NetProvider.Channels
+namespace NetProvider.Factory
 {
     /// <summary>
     /// 定义Web服务通道
     /// </summary>
     //[AOPAttribute]
-    public abstract class ServiceChannel : IServiceChannel
+    public abstract class ServiceChannel : IWebApiServiceChannel
     {
         public string Uri { get; private set; }
         /// <summary>
@@ -35,8 +38,15 @@ namespace NetProvider.Channels
             Type t = this.GetType();
             MethodInfo info = t.GetInterface(parameters.InterfaceName).GetMethod(parameters.MethodName);
             Attribute[] attributes = Attribute.GetCustomAttributes(info);
-            return RunMethod(attributes, info.ReturnType, info.GetParameters(), parameters);
-
+            var value = RunMethod(attributes, info.ReturnType, info.GetParameters(), parameters);
+            if (info.ReturnType == typeof(Task) || info.ReturnType.GetInterfaces().Count(s=>s==typeof(IAsyncResult))>0)
+            {
+                return value;
+            }
+            else
+            {
+                return value.GetAwaiter().GetResult();
+            }
         }
         private async Task<object> RunMethod(Attribute[] attributes, Type retType, ParameterInfo[] parameterInfos, Parameters parameters)
         {
@@ -53,10 +63,10 @@ namespace NetProvider.Channels
                 if (retType.IsGenericType && retType.BaseType == typeof(Task))
                 {
                     Type t = retType.GetGenericArguments()[0];
-                    return FilterManagement.Filter(ClientSetting.Filters, str, t, parameters, this);
+                    return FilterManagement.Filter(ClientSetting.Filters.First, str, t, parameters, this);
                 }
 
-                return FilterManagement.Filter(ClientSetting.Filters, str, retType, parameters, this);
+                return FilterManagement.Filter(ClientSetting.Filters.First, str, retType, parameters, this);
             }
             throw new MessageException("请求错误");
         }
@@ -103,7 +113,7 @@ namespace NetProvider.Channels
                 foreach (ParameterInfo p in parameters)
                 {
                     if (objs[p.Position] != null)
-                        sb.Append($" {p.Name}={objs[p.Position].ToString()}&");
+                        sb.Append($" {p.Name}={objs[p.Position]}&");
                 }
                 string ss = sb.ToString().TrimEnd('&').Trim();
                 string url = $"{uri}?{ss}";
@@ -149,32 +159,6 @@ namespace NetProvider.Channels
         public object Invok(Parameters parameters)
         {
             throw new NotImplementedException();
-        }
-    }
-    /// <summary>
-    /// 定义Socket服务通道
-    /// </summary>
-    public abstract class SocketServiceChannel : ISocketServiceChannel
-    {
-        public SocketClient SocketClient { get; private set; }
-        public SocketServiceChannel(string ip, int port)
-        {
-            this.SocketClient = new SocketClient(ip, port);
-        }
-        public void StartClient()
-        {
-            SocketClient.StartClientAndReceive();
-        }
-        public void Close()
-        {
-            SocketClient.Close();
-        }
-
-        public object Invok(Parameters parameters)
-        {
-            string value = parameters.ParametersInfo[0].ToJsonString();
-            SocketClient.SendMessage(value);
-            return 0;
         }
     }
     //public interface Aaa
