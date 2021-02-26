@@ -2,15 +2,16 @@
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
+using System.Threading;
 
-namespace NetProvider.Channels
+namespace NetProvider.Core.Channels
 {
     public abstract class FactoryBase<T>
     {
         //定义和表示动态程序集的模块
-        protected private static ModuleBuilder moduleBuilder = null;
+        protected static ModuleBuilder moduleBuilder = null;
         //定义表示动态程序集
-        protected private static AssemblyBuilder assemblyBuilder = null;
+        protected static AssemblyBuilder assemblyBuilder = null;
         static FactoryBase()
         {
             assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(new AssemblyName("Channels"), AssemblyBuilderAccess.RunAndCollect);//AppDomain.CurrentDomain.DefineDynamicAssembly(new AssemblyName("Channels"), AssemblyBuilderAccess.Run);
@@ -19,18 +20,19 @@ namespace NetProvider.Channels
         /// <summary>
         /// 代理对象实例
         /// </summary>
-        public T Channel { get; protected private set; }
+        public T Channel { get; protected set; }
         /// <summary>
         /// 函数动态处理
         /// </summary>
         /// <param name="infos"></param>
         /// <param name="typeBuilder"></param>
         /// <param name="type"></param>
-        protected private virtual void DynamicMethod(MethodInfo[] infos, TypeBuilder typeBuilder, Type type)
+        /// <typeparam name="T"></typeparam>
+        protected virtual void DynamicMethod<Serrvice>(MethodInfo[] infos, TypeBuilder typeBuilder, Type type) where Serrvice : class, IServiceChannel
         {
             foreach (MethodInfo info in infos)
             {
-                MethodOverride(info, typeBuilder, type);
+                MethodOverride<Serrvice>(info, typeBuilder, type);
             }
         }
         /// <summary>
@@ -39,17 +41,19 @@ namespace NetProvider.Channels
         /// <param name="webNetwork"></param>
         /// <param name="info"></param>
         /// <param name="iL"></param>
-        protected private void MethodOverride(MethodInfo info, TypeBuilder typeBuilder, Type type)
+        /// <param name="type"></param>
+        ///<typeparam name="T"></typeparam>
+        private void MethodOverride<Serrvice>(MethodInfo info, TypeBuilder typeBuilder, Type type) where Serrvice: class,IServiceChannel
         {
             Type[] ParameterTypes = info.GetParameters().Select(s => s.ParameterType).ToArray();
-            MethodBuilder methodBuilder = typeBuilder.DefineMethod(info.Name, MethodAttributes.Private |
+            MethodBuilder methodBuilder = typeBuilder.DefineMethod(info.Name, MethodAttributes.Public |
                 MethodAttributes.Virtual |
                 MethodAttributes.UnmanagedExport |
                 MethodAttributes.HideBySig |
                 MethodAttributes.NewSlot |
                 MethodAttributes.Final, info.ReturnType, ParameterTypes);
             ILGenerator iL = methodBuilder.GetILGenerator();//生成中间语言指令
-            MethodInfo methodInfo = typeof(ServiceChannel).GetMethod("Invok", BindingFlags.Public | BindingFlags.Instance);
+            MethodInfo methodInfo = typeof(Serrvice).GetMethod("Invok", BindingFlags.Public | BindingFlags.Instance);
 
             LocalBuilder lisLb = iL.DeclareLocal(typeof(object[]));
             LocalBuilder parameters = iL.DeclareLocal(typeof(Parameters));
@@ -94,10 +98,10 @@ namespace NetProvider.Channels
         /// <param name="typeBuilder">类型构造器</param>
         /// <param name="objType">继承的对象</param>
         /// <param name="types">参数类型</param>
-        protected private void CreateKittyClassStructure(TypeBuilder typeBuilder, Type objType, params Type[] types)
+        protected void CreateKittyClassStructure(TypeBuilder typeBuilder, Type objType, params Type[] types)
         {
             ConstructorInfo objCtor = objType.GetConstructor(types);
-
+            if (objCtor == null) throw new ProviderException("未找到构造函数");
             var constructorBuilder = typeBuilder.DefineConstructor(
                MethodAttributes.Public, CallingConventions.Standard, types);
             ILGenerator ilOfCtor = constructorBuilder.GetILGenerator();
@@ -114,6 +118,6 @@ namespace NetProvider.Channels
 
             // ---- define properties ----
         }
-        protected private abstract T CreateChannel();
+        protected abstract T CreateChannel();
     }
 }

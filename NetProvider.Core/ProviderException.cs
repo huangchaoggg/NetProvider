@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace NetProvider
+namespace NetProvider.Core
 {
     public class ProviderException : Exception
     {

@@ -1,4 +1,4 @@
-﻿namespace NetProvider.Channels
+﻿namespace NetProvider.Core.Channels
 {
     public class Parameters
     {

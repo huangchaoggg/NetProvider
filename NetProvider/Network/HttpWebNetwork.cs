@@ -1,4 +1,6 @@
-﻿using NetProvider.Network.Inter;
+﻿using NetProvider.Core;
+using NetProvider.Network.Inter;
+
 using System;
 using System.IO;
 using System.Net.Http;

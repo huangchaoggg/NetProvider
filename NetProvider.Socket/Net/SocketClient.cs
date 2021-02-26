@@ -1,11 +1,12 @@
-﻿using NetProvider.EventArgs;
-using NetProvider.Network.Inter;
+﻿using NetProvider.Core;
+using NetProvider.Sock.EventArgs;
+using NetProvider.Sock.Net.Inter;
 using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
 
-namespace NetProvider.Network
+namespace NetProvider.Sock.Net
 {
     public class SocketClient : ISocketClient
     {

@@ -1,4 +1,5 @@
-﻿using NetProvider.Filter;
+﻿using NetProvider.Core.Filter;
+
 using System;
 using System.Collections.Generic;
 using System.Net;
@@ -31,7 +32,7 @@ namespace NetProvider.Network
         /// 默认内容头
         /// </summary>
         public Dictionary<string, string> DefaultContentHeaders { get; private set; } = new Dictionary<string, string>();
-        public List<IFilter> Filters { get; } = new List<IFilter>();
+        public LinkedList<IFilter> Filters { get; } = new LinkedList<IFilter>();
         public HttpClient Client { get; private set; }
         /// <summary>
         /// 设置heder

@@ -1,9 +1,9 @@
-﻿using Demo.Service;
-using NetProvider;
-using NetProvider.Network;
-using System.Net.Http;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using System.Windows;
+
+using Demo.Service;
+
+using NetProvider.Core;
 
 namespace Demo
 {
