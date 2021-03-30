@@ -4,6 +4,32 @@
         <name>NetProvider</name>
     </assembly>
     <members>
+        <member name="T:NetProvider.ApiServiceCreater">
+            <summary>
+            api实例对象工厂
+            </summary>
+        </member>
+        <member name="M:NetProvider.ApiServiceCreater.CreateObject``1(System.String,NetProvider.Network.HttpClientSetting)">
+            <summary>
+            创建api实例对象
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="baseUri"></param>
+            <param name="clientSetting"></param>
+            <returns></returns>
+        </member>
+        <member name="P:NetProvider.Factory.ChannelFactory`1.Channel">
+            <summary>
+            代理对象实例
+            </summary>
+        </member>
+        <member name="M:NetProvider.Factory.ChannelFactory`1.Create">
+            <summary>
+            为对象创建服务通道
+            </summary>
+            <typeparam name="T"></typeparam>
+            <returns></returns>
+        </member>
         <member name="P:NetProvider.Factory.IWebApiServiceChannel.HttpWebNetwork">
             <summary>
             web访问器
@@ -51,10 +77,21 @@
             定义web上传下载服务通道
             </summary>
         </member>
+        <member name="M:NetProvider.Network.HttpClientSetting.Buider(System.Net.Http.HttpClient)">
+            <summary>
+            构建
+            </summary>
+        </member>
         <member name="P:NetProvider.Network.HttpClientSetting.DefaultContentHeaders">
             <summary>
             默认内容头
             </summary>
+        </member>
+        <member name="M:NetProvider.Network.HttpClientSetting.SetCertificate(System.Security.Cryptography.X509Certificates.X509Certificate[])">
+            <summary>
+            设置证书
+            </summary>
+            <param name="certificate"></param>
         </member>
         <member name="M:NetProvider.Network.HttpClientSetting.SetHeader(System.String,System.String)">
             <summary>
@@ -101,12 +138,42 @@
             <param name="body"></param>
             <returns></returns>
         </member>
+        <member name="T:NetProvider.Network.RequestAttribute">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:NetProvider.Network.RequestAttribute.RequestType">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:NetProvider.Network.RequestAttribute.Uri">
+            <summary>
+            
+            </summary>
+        </member>
         <member name="M:NetProvider.Network.RequestAttribute.#ctor(NetProvider.RequestType,System.String)">
             <summary>
             方法属性
             </summary>
             <param name="requestType"></param>
             <param name="uri"></param>
+        </member>
+        <member name="T:NetProvider.Network.RouteAttribute">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:NetProvider.Network.RouteAttribute.BaseUrl">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:NetProvider.Network.RouteAttribute.HttpClientSetting">
+            <summary>
+            
+            </summary>
         </member>
         <member name="F:NetProvider.RequestType.Get">
             <summary>

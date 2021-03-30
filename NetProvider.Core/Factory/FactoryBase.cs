@@ -2,11 +2,10 @@
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
-using System.Threading;
 
 namespace NetProvider.Core.Channels
 {
-    public abstract class FactoryBase<T>
+    public abstract class FactoryBase
     {
         //定义和表示动态程序集的模块
         protected static ModuleBuilder moduleBuilder = null;
@@ -18,21 +17,17 @@ namespace NetProvider.Core.Channels
             moduleBuilder = assemblyBuilder.DefineDynamicModule("Channels");
         }
         /// <summary>
-        /// 代理对象实例
-        /// </summary>
-        public T Channel { get; protected set; }
-        /// <summary>
         /// 函数动态处理
         /// </summary>
         /// <param name="infos"></param>
         /// <param name="typeBuilder"></param>
         /// <param name="type"></param>
         /// <typeparam name="T"></typeparam>
-        protected virtual void DynamicMethod<Serrvice>(MethodInfo[] infos, TypeBuilder typeBuilder, Type type) where Serrvice : class, IServiceChannel
+        protected virtual void DynamicMethod<Serrvice,T>(MethodInfo[] infos, TypeBuilder typeBuilder, Type type) where Serrvice : class, IServiceChannel
         {
             foreach (MethodInfo info in infos)
             {
-                MethodOverride<Serrvice>(info, typeBuilder, type);
+                MethodOverride<Serrvice,T>(info, typeBuilder, type);
             }
         }
         /// <summary>
@@ -43,7 +38,7 @@ namespace NetProvider.Core.Channels
         /// <param name="iL"></param>
         /// <param name="type"></param>
         ///<typeparam name="T"></typeparam>
-        private void MethodOverride<Serrvice>(MethodInfo info, TypeBuilder typeBuilder, Type type) where Serrvice: class,IServiceChannel
+        private void MethodOverride<Serrvice,T>(MethodInfo info, TypeBuilder typeBuilder, Type type) where Serrvice: class,IServiceChannel
         {
             Type[] ParameterTypes = info.GetParameters().Select(s => s.ParameterType).ToArray();
             MethodBuilder methodBuilder = typeBuilder.DefineMethod(info.Name, MethodAttributes.Public |
@@ -118,6 +113,11 @@ namespace NetProvider.Core.Channels
 
             // ---- define properties ----
         }
-        protected abstract T CreateChannel();
+        /// <summary>
+        /// 创建api通道
+        /// </summary>
+        /// <typeparam name="T">api接口</typeparam>
+        /// <returns></returns>
+       public abstract Type CreateChannel<T>() where T : class;
     }
 }

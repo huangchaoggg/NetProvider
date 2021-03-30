@@ -2,12 +2,21 @@
 
 namespace NetProvider.Network
 {
+    /// <summary>
+    /// 
+    /// </summary>
     [AttributeUsage(AttributeTargets.Method)]
     public class RequestAttribute : Attribute
     {
-        public RequestType RequestType { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
+        public RequestType RequestType { get;private set; }
 
-        public string Uri { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
+        public string Uri { get; private set; }
 
         /// <summary>
         /// 方法属性

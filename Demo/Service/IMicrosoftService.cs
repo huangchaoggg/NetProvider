@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Text;
-using System.Threading.Tasks;
-using NetProvider;
-using NetProvider.Channels;
+﻿using NetProvider;
+using NetProvider.Factory;
 using NetProvider.Network;
+
+using System.Threading.Tasks;
 
 namespace Demo.Service
 {
@@ -28,6 +23,7 @@ namespace Demo.Service
         /// <summary>
         /// 无返回值调用
         /// </summary>
+        //[Stream("/zh-cn/dotnet/core/tutorials/using-with-xplat-cli",headers:new string[] {"","",""})]
         [Request(RequestType.Get, "/zh-cn/dotnet/core/tutorials/using-with-xplat-cli")]
         Task Tutorials();
         //"Accept: */*",

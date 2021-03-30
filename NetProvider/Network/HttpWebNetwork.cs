@@ -18,26 +18,31 @@ namespace NetProvider.Network
         public HttpWebNetwork(HttpClientSetting clientSetting)
         {
             this.clientSetting = clientSetting;
-            httpClient = clientSetting.Client;
         }
-        private HttpClient httpClient = null;
-        public async Task<HttpResponseMessage> GetRequest(string uri)
+        public Task<HttpResponseMessage> GetRequest(string uri)
         {
-            return await HttpRequest(uri, RequestType.Get, null);
+            try
+            {
+                return HttpRequest(uri, RequestType.Get, null);
+
+            }catch(TaskCanceledException e)
+            {
+                throw new ProviderException(e.Message);
+            }
         }
 
-        public async Task<HttpResponseMessage> PostRequest(string uri)
+        public Task<HttpResponseMessage> PostRequest(string uri)
         {
             HttpContent content = new StringContent("");
             SetContentHeader(content.Headers);
-            return await httpClient.PostAsync(uri, content);
+            return clientSetting.Client.PostAsync(uri, content);
         }
 
-        public async Task<HttpResponseMessage> PostRequest(string uri, string body)
+        public Task<HttpResponseMessage> PostRequest(string uri, string body)
         {
             HttpContent content = new StringContent(body);
             SetContentHeader(content.Headers);
-            return await httpClient.PostAsync(uri, content);
+            return clientSetting.Client.PostAsync(uri, content);
         }
         private void SetContentHeader(HttpHeaders headers)
         {
@@ -48,7 +53,7 @@ namespace NetProvider.Network
                 headers.Add(header.Key, header.Value);
             }
         }
-        public virtual async Task<HttpResponseMessage> HttpRequest(string uri, RequestType type, string body)
+        public virtual Task<HttpResponseMessage> HttpRequest(string uri, RequestType type, string body)
         {
 
             HttpRequestMessage message = new HttpRequestMessage(new HttpMethod(type.ToString()), uri);
@@ -63,7 +68,7 @@ namespace NetProvider.Network
                 SetContentHeader(content.Headers);
                 message.Content = content;
             }
-            return await httpClient.SendAsync(message);
+            return clientSetting.Client.SendAsync(message);
         }
         /// <summary>
         /// 文件上载
@@ -71,7 +76,7 @@ namespace NetProvider.Network
         /// <param name="uri"></param>
         /// <param name="body"></param>
         /// <returns></returns>
-        public async Task<HttpResponseMessage> PostRequest(string uri, FileStream body)
+        public Task<HttpResponseMessage> PostRequest(string uri, FileStream body)
         {
             byte[] bytes = new byte[body.Length];
             body.Read(bytes, 0, bytes.Length);
@@ -80,7 +85,44 @@ namespace NetProvider.Network
             var sc = new ByteArrayContent(bytes);
             sc.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
             content.Add(sc, "files", Path.GetFileName(body.Name));
-            var resp = await httpClient.PostAsync(uri, content);
+            var resp = clientSetting.Client.PostAsync(uri, content);
+            return resp;
+        }
+        /// <summary>
+        /// 文件上传
+        /// </summary>
+        /// <param name="uri"></param>
+        /// <param name="contentName"></param>
+        /// <param name="contentType"></param>
+        /// <param name="objs"></param>
+        /// <returns></returns>
+        public Task<HttpResponseMessage> SendStream(string uri, string contentName, string contentType, params object[] objs)
+        {
+            if(objs==null) throw new ProviderException("数据不能为空");
+
+            string boundary = string.Format("----------------------------{0}", DateTime.Now.Ticks.ToString("x"));
+            MultipartFormDataContent content = new MultipartFormDataContent(boundary);
+
+            foreach (object v in objs)
+            {
+                FileStream fs;
+                if (v is string)
+                {
+                    fs= File.OpenRead(v as string);
+                }
+                else if(v is FileStream)
+                {
+                    fs = v as FileStream;
+                }
+                else
+                {
+                    throw new ProviderException("仅支持以'string'文件路径或'FileStream'流的形式");
+                }
+                var sc = new StreamContent(fs);
+                sc.Headers.ContentType = new MediaTypeHeaderValue(contentType);
+                content.Add(sc, contentName, Path.GetFileName(fs.Name));
+            }            
+            var resp = clientSetting.Client.PostAsync(uri, content);
             return resp;
         }
     }

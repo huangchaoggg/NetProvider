@@ -5,17 +5,54 @@ using System.Collections.Generic;
 
 namespace NetProvider.Core.Filter
 {
-    public static class FilterManagement
+    public class FilterManagement
     {
-        public static object Filter(LinkedListNode<IFilter> Filters, object value, Type retType, Parameters parameters, IServiceChannel serviceChannel)
+        private LinkedList<IExceptionFilter> ExceptionFilters { get; } = new LinkedList<IExceptionFilter>();
+        private LinkedList<IMessageFilter> MessageFilters { get; } = new LinkedList<IMessageFilter>();
+        public object CallMessageFilter(object value, Type retType, Parameters parameters, IServiceChannel serviceChannel)
         {
 
-            if (Filters == null)
+            if (MessageFilters.Count == 0)
                 return value;
-
-            object v = Filters.Value.Filter(value, retType, parameters, serviceChannel);
-            return Filter(Filters.Next, v, retType, parameters, serviceChannel);
-
+            var message = new MessageFilterContext(retType, parameters, serviceChannel, MessageFilters.First);
+            return message.Invoke(null,value);
+        }
+        public void AddMessageFilter(IMessageFilter filter)
+        {
+            if (!MessageFilters.Contains(filter))
+            {
+                MessageFilters.AddLast(filter);
+            }
+            else
+            {
+                MessageFilters.Find(filter).Value=filter;
+            }
+        }
+        public void AddExceptionFilter(IExceptionFilter filter)
+        {
+            if (!ExceptionFilters.Contains(filter))
+            {
+                ExceptionFilters.AddLast(filter);
+            }
+            else
+            {
+                ExceptionFilters.Find(filter).Value = filter;
+            }
+        }
+        public object CallExceptionFilter<Excp>(Excp value, 
+            Type retType,
+            Parameters parameters,
+            IServiceChannel serviceChannel) where Excp: Exception
+        {
+            if (ExceptionFilters.Count == 0)
+                return null;
+            var context= new ExceptionFilterContext(retType, parameters, serviceChannel, ExceptionFilters.First);
+            var obj= context.Invoke(null, value);
+            if (!context.ExceptionHandled)
+            {
+                throw new ProviderException(value.GetBaseException().Message);
+            }
+            return obj;
         }
     }
 }

@@ -1,9 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Autofac;
+
+using Demo.Service;
+
+using NetProvider;
+
 using System.Windows;
 
 namespace Demo
@@ -13,5 +13,13 @@ namespace Demo
     /// </summary>
     public partial class App : Application
     {
+        ContainerBuilder buider = new ContainerBuilder();
+        public static IContainer Container;
+        public App()
+        {
+            var service = ApiServiceCreater.CreateObject<IMicrosoftService>("https://docs.microsoft.com");
+            buider.RegisterInstance(service);
+            Container=buider.Build();
+        }
     }
 }

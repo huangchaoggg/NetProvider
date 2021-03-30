@@ -1,6 +1,7 @@
 ﻿
 using NetProvider.Core;
 using NetProvider.Core.Channels;
+using NetProvider.Core.Extension;
 using NetProvider.Sock.Net;
 using NetProvider.Sock.Net.Inter;
 

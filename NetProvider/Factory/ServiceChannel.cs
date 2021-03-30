@@ -1,5 +1,6 @@
 ﻿using NetProvider.Core;
 using NetProvider.Core.Channels;
+using NetProvider.Core.Extension;
 using NetProvider.Core.Filter;
 using NetProvider.Network;
 using NetProvider.Network.Inter;
@@ -20,6 +21,7 @@ namespace NetProvider.Factory
     //[AOPAttribute]
     public abstract class ServiceChannel : IWebApiServiceChannel
     {
+        private FilterManagement filterManagement;
         public string Uri { get; private set; }
         /// <summary>
         /// web访问器
@@ -30,6 +32,7 @@ namespace NetProvider.Factory
         {
             this.Uri = uri;
             this.ClientSetting = setting;
+            filterManagement = this.ClientSetting.FilterManagement;
             HttpWebNetwork = new HttpWebNetwork(setting);
         }
 
@@ -39,7 +42,12 @@ namespace NetProvider.Factory
             MethodInfo info = t.GetInterface(parameters.InterfaceName).GetMethod(parameters.MethodName);
             Attribute[] attributes = Attribute.GetCustomAttributes(info);
             var value = RunMethod(attributes, info.ReturnType, info.GetParameters(), parameters);
-            if (info.ReturnType == typeof(Task) || info.ReturnType.GetInterfaces().Count(s=>s==typeof(IAsyncResult))>0)
+            value.ContinueWith((result) =>
+            {
+                if (result.Exception != null)
+                    filterManagement.CallExceptionFilter(result.Exception, info.ReturnType, parameters, this);
+            });
+            if (info.ReturnType.IsTask())
             {
                 return value;
             }
@@ -53,22 +61,37 @@ namespace NetProvider.Factory
             RequestAttribute ra = attributes.FirstOrDefault(s => s is RequestAttribute) as RequestAttribute;
             if (ra == null)
             {
-                throw new MessageException("特性不存在");
+                StreamAttribute sa = attributes.FirstOrDefault(s => s is StreamAttribute) as StreamAttribute;
+                if (sa == null)
+                {
+                    throw new MessageException("特性不存在");
+                }
+                return SendStream(sa, parameters.ParametersInfo);
             }
 
             HttpResponseMessage rd = await Request(ra, parameterInfos, parameters.ParametersInfo);
             if (rd.IsSuccessStatusCode)
             {
                 string str = await rd.Content.ReadAsStringAsync();
-                if (retType.IsGenericType && retType.BaseType == typeof(Task))
+                if (retType.IsTask())
                 {
-                    Type t = retType.GetGenericArguments()[0];
-                    return FilterManagement.Filter(ClientSetting.Filters.First, str, t, parameters, this);
+                    var args= retType.GenericTypeArguments;
+                    if (args.Length > 0)
+                    {
+                        return filterManagement.CallMessageFilter(str, args[0], parameters, this);
+                    }
+                    return Task.CompletedTask;
                 }
-
-                return FilterManagement.Filter(ClientSetting.Filters.First, str, retType, parameters, this);
+                else
+                {
+                    if (retType == typeof(void))
+                    {
+                        return Task.CompletedTask;
+                    }
+                    return filterManagement.CallMessageFilter(str, retType, parameters, this);
+                }
             }
-            throw new MessageException("请求错误");
+             throw new MessageException(rd.ToString());
         }
         /// <summary>
         /// 请求数据
@@ -78,17 +101,17 @@ namespace NetProvider.Factory
         /// <param name="parameters">参数属性</param>
         /// <param name="objs">参数</param>
         /// <returns></returns>
-        private async Task<HttpResponseMessage> Request(RequestAttribute ra, ParameterInfo[] parameters, params object[] objs)
+        private Task<HttpResponseMessage> Request(RequestAttribute ra, ParameterInfo[] parameters, params object[] objs)
         {
-            HttpResponseMessage rd = null;
+            Task<HttpResponseMessage> rd = null;
             string uri = HttpWebHelper.PathCombine(Uri, ra.Uri);
             switch (ra.RequestType)
             {
                 case RequestType.Get:
-                    rd = await GetRequest(uri, parameters, objs);
+                    rd = GetRequest(uri, parameters, objs);
                     break;
                 default:
-                    rd = await PostRequest(uri, objs);
+                    rd = PostRequest(uri, objs);
                     break;
             }
             return rd;
@@ -100,12 +123,12 @@ namespace NetProvider.Factory
         /// <param name="parameters"></param>
         /// <param name="objs"></param>
         /// <returns></returns>
-        private async Task<HttpResponseMessage> GetRequest(string uri, ParameterInfo[] parameters, params object[] objs)
+        private Task<HttpResponseMessage> GetRequest(string uri, ParameterInfo[] parameters, params object[] objs)
         {
-            HttpResponseMessage rd;
+            Task<HttpResponseMessage> rd;
             if (objs == null || objs.Length == 0)
             {
-                rd = await HttpWebNetwork.GetRequest(uri);
+                rd = HttpWebNetwork.GetRequest(uri);
             }
             else
             {
@@ -118,7 +141,7 @@ namespace NetProvider.Factory
                 string ss = sb.ToString().TrimEnd('&').Trim();
                 string url = $"{uri}?{ss}";
 
-                rd = await HttpWebNetwork.GetRequest(System.Uri.EscapeUriString(url));
+                rd = HttpWebNetwork.GetRequest(System.Uri.EscapeUriString(url));
             }
             return rd;
         }
@@ -128,27 +151,33 @@ namespace NetProvider.Factory
         /// <param name="uri"></param>
         /// <param name="objs"></param>
         /// <returns></returns>
-        private async Task<HttpResponseMessage> PostRequest(string uri, params object[] objs)
+        private Task<HttpResponseMessage> PostRequest(string uri, params object[] objs)
         {
-            HttpResponseMessage rd;
+            Task<HttpResponseMessage> rd;
             if (objs == null || objs.Length == 0)
             {
-                rd = await HttpWebNetwork.PostRequest(uri);
+                rd = HttpWebNetwork.PostRequest(uri);
             }
             else
             {
                 object obj = objs[0];
                 if (obj is Stream)
                 {
-                    rd = await HttpWebNetwork.PostRequest(uri, (FileStream)obj);
+                    rd = HttpWebNetwork.PostRequest(uri, (FileStream)obj);
                 }
                 else
                 {
                     string body = obj.ToJsonString();
-                    rd = await HttpWebNetwork.PostRequest(uri, body);
+                    rd = HttpWebNetwork.PostRequest(uri, body);
                 }
             }
             return rd;
+        }
+
+        private Task<HttpResponseMessage> SendStream(StreamAttribute sa,params object[] objs)
+        {
+            string uri = HttpWebHelper.PathCombine(Uri, sa.Uri);
+            return HttpWebNetwork.SendStream(uri,sa.ContentName,sa.ContentType, objs);
         }
     }
     /// <summary>

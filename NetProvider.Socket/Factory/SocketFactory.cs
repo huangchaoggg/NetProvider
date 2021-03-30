@@ -59,7 +59,7 @@ namespace NetProvider.Sock.Factory
                     , typeof(ISocketServiceChannel));
                 typeBuilder.AddInterfaceImplementation(t);
                 CreateKittyClassStructure(typeBuilder, typeof(ISocketServiceChannel), typeof(string));
-                DynamicMethod(infos, typeBuilder, t);
+                DynamicMethod<SocketServiceChannel>(infos, typeBuilder, t);
                 Type rt = typeBuilder.CreateTypeInfo().AsType();
                 Object ob = Activator.CreateInstance(rt, _ip, _port);
                 return ob as T;

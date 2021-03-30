@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -28,7 +29,10 @@ namespace NetProvider.Network.Inter
         /// <param name="uri"></param>
         /// <param name="body"></param>
         /// <returns></returns>
+        [Obsolete("应使用SendStream")]
         Task<HttpResponseMessage> PostRequest(string uri, FileStream body);
+
+        Task<HttpResponseMessage> SendStream(string uri,string contentName,string contentType, params object[] objs);
 
         Task<HttpResponseMessage> HttpRequest(string uri, RequestType type, string body);
     }

@@ -1,9 +1,11 @@
 ﻿using System.Threading.Tasks;
 using System.Windows;
 
+using Autofac;
+
 using Demo.Service;
 
-using NetProvider.Core;
+using NetProvider.Core.Extension;
 
 namespace Demo
 {
@@ -16,8 +18,8 @@ namespace Demo
         {
             InitializeComponent();
         }
-
-        IMicrosoftService service = new MicrosoftService("https://docs.microsoft.com");
+        IMicrosoftService service = App.Container.Resolve<IMicrosoftService>();
+        //IMicrosoftService service = new MicrosoftService("https://docs.microsoft.com");
         private void Button_Click(object sender, RoutedEventArgs e)
         {
             Task<string> rd = service.GetJson();
