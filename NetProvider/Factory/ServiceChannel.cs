@@ -61,7 +61,7 @@ namespace NetProvider.Factory
             RequestAttribute ra = attributes.FirstOrDefault(s => s is RequestAttribute) as RequestAttribute;
             if (ra == null)
             {
-                StreamAttribute sa = attributes.FirstOrDefault(s => s is StreamAttribute) as StreamAttribute;
+                FileTransferAttribute sa = attributes.FirstOrDefault(s => s is FileTransferAttribute) as FileTransferAttribute;
                 if (sa == null)
                 {
                     throw new MessageException("特性不存在");
@@ -174,7 +174,7 @@ namespace NetProvider.Factory
             return rd;
         }
 
-        private Task<HttpResponseMessage> SendStream(StreamAttribute sa,params object[] objs)
+        private Task<HttpResponseMessage> SendStream(FileTransferAttribute sa,params object[] objs)
         {
             string uri = HttpWebHelper.PathCombine(Uri, sa.Uri);
             return HttpWebNetwork.SendStream(uri,sa.ContentName,sa.ContentType, objs);

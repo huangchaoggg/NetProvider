@@ -3,9 +3,9 @@
 namespace NetProvider.Network
 {
     [AttributeUsage(AttributeTargets.Method)]
-    public class StreamAttribute:Attribute
+    public class FileTransferAttribute:Attribute
     {
-        public StreamAttribute(string uri, string contentName="file", string contentType= "application/octet-stream")
+        public FileTransferAttribute(string uri, string contentName="file", string contentType= "application/octet-stream")
         {
             Uri = uri;
             ContentName = contentName;

@@ -13,7 +13,7 @@
             <summary>
             创建api实例对象
             </summary>
-            <typeparam name="T"></typeparam>
+            <typeparam name="T">需要代理的接口</typeparam>
             <param name="baseUri"></param>
             <param name="clientSetting"></param>
             <returns></returns>
@@ -77,6 +77,11 @@
             定义web上传下载服务通道
             </summary>
         </member>
+        <member name="P:NetProvider.Network.FileTransferAttribute.Uri">
+            <summary>
+            
+            </summary>
+        </member>
         <member name="M:NetProvider.Network.HttpClientSetting.Buider(System.Net.Http.HttpClient)">
             <summary>
             构建
@@ -123,6 +128,16 @@
             <param name="body"></param>
             <returns></returns>
         </member>
+        <member name="M:NetProvider.Network.HttpWebNetwork.SendStream(System.String,System.String,System.String,System.Object[])">
+            <summary>
+            文件上传
+            </summary>
+            <param name="uri"></param>
+            <param name="contentName"></param>
+            <param name="contentType"></param>
+            <param name="objs"></param>
+            <returns></returns>
+        </member>
         <member name="M:NetProvider.Network.Inter.IHttpWebNetwork.GetRequest(System.String)">
             <summary>
             请求Get数据
@@ -159,21 +174,6 @@
             </summary>
             <param name="requestType"></param>
             <param name="uri"></param>
-        </member>
-        <member name="T:NetProvider.Network.RouteAttribute">
-            <summary>
-            
-            </summary>
-        </member>
-        <member name="P:NetProvider.Network.RouteAttribute.BaseUrl">
-            <summary>
-            
-            </summary>
-        </member>
-        <member name="P:NetProvider.Network.RouteAttribute.HttpClientSetting">
-            <summary>
-            
-            </summary>
         </member>
         <member name="F:NetProvider.RequestType.Get">
             <summary>

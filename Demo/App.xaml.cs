@@ -17,8 +17,11 @@ namespace Demo
         public static IContainer Container;
         public App()
         {
-            var service = ApiServiceCreater.CreateObject<IMicrosoftService>("https://docs.microsoft.com");
-            buider.RegisterInstance(service);
+            //var service = ApiServiceCreater.CreateObject<IMicrosoftService>("https://docs.microsoft.com");
+            //buider.RegisterInstance(service);
+            buider.Register(new System.Func<IComponentContext, IMicrosoftService>((e) => 
+            {
+                return ApiServiceCreater.CreateObject<IMicrosoftService>("https://docs.microsoft.com"); }));
             Container=buider.Build();
         }
     }
