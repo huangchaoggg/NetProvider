@@ -5,7 +5,10 @@ using NetProvider.Core.Filter;
 using NetProvider.Network;
 using NetProvider.Network.Inter;
 
+using Newtonsoft.Json;
+
 using System;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -38,23 +41,32 @@ namespace NetProvider.Factory
 
         public object Invok(Parameters parameters)
         {
+            Task<object> obj = new Task<object>(() =>
+            {
+                return InvokAsync(parameters).Result;
+            });
+            obj.Start();
+            return obj.Result;
+
+
+        }
+        public Task<object> InvokAsync(Parameters parameters)
+        {
             Type t = this.GetType();
             MethodInfo info = t.GetInterface(parameters.InterfaceName).GetMethod(parameters.MethodName);
             Attribute[] attributes = Attribute.GetCustomAttributes(info);
-            var value = RunMethod(attributes, info.ReturnType, info.GetParameters(), parameters);
-            value.ContinueWith((result) =>
+            return RunMethod(attributes, info.ReturnType, info.GetParameters(), parameters)
+            .ContinueWith((result) =>
             {
+                object ret;
                 if (result.Exception != null)
-                    filterManagement.CallExceptionFilter(result.Exception, info.ReturnType, parameters, this);
+                    ret = filterManagement.CallExceptionFilter(result.Exception, info.ReturnType, parameters, this);
+                else
+                {
+                    ret = filterManagement.CallMessageFilter(result.Result, info.ReturnType, parameters, this);
+                }
+                return ret;
             });
-            if (info.ReturnType.IsTask())
-            {
-                return value;
-            }
-            else
-            {
-                return value.GetAwaiter().GetResult();
-            }
         }
         private async Task<object> RunMethod(Attribute[] attributes, Type retType, ParameterInfo[] parameterInfos, Parameters parameters)
         {
@@ -68,30 +80,46 @@ namespace NetProvider.Factory
                 }
                 return SendStream(sa, parameters.ParametersInfo);
             }
-
             HttpResponseMessage rd = await Request(ra, parameterInfos, parameters.ParametersInfo);
             if (rd.IsSuccessStatusCode)
             {
-                string str = await rd.Content.ReadAsStringAsync();
+                Type respType = retType;
                 if (retType.IsTask())
                 {
-                    var args= retType.GenericTypeArguments;
+                    var args = retType.GenericTypeArguments;
                     if (args.Length > 0)
                     {
-                        return filterManagement.CallMessageFilter(str, args[0], parameters, this);
+                        respType = args[0];
                     }
+                }
+                if (respType == typeof(HttpResponseMessage))
+                {
+                    return rd;
+                }
+                if (respType == typeof(Stream))
+                {
+                    return await rd.Content.ReadAsStreamAsync();
+                }
+                if (respType == typeof(byte[]))
+                {
+                    return await rd.Content.ReadAsByteArrayAsync();
+                }
+                if (respType == typeof(void))
+                {
                     return Task.CompletedTask;
                 }
-                else
+                string value= await rd.Content.ReadAsStringAsync();
+                if (respType == typeof(string))
                 {
-                    if (retType == typeof(void))
-                    {
-                        return Task.CompletedTask;
-                    }
-                    return filterManagement.CallMessageFilter(str, retType, parameters, this);
+                    return value;
+                }
+                if (!string.IsNullOrWhiteSpace(value))
+                {
+                    var v= value.ToObject(respType);
+                    return v;
                 }
             }
-             throw new MessageException(rd.ToString());
+            throw new MessageException(rd.ToString());
         }
         /// <summary>
         /// 请求数据
@@ -174,21 +202,12 @@ namespace NetProvider.Factory
             return rd;
         }
 
-        private Task<HttpResponseMessage> SendStream(FileTransferAttribute sa,params object[] objs)
+        private Task<HttpResponseMessage> SendStream(FileTransferAttribute sa, params object[] objs)
         {
             string uri = HttpWebHelper.PathCombine(Uri, sa.Uri);
-            return HttpWebNetwork.SendStream(uri,sa.ContentName,sa.ContentType, objs);
+            return HttpWebNetwork.SendStream(uri, sa.ContentName, sa.ContentType, objs);
         }
-    }
-    /// <summary>
-    /// 定义web上传下载服务通道
-    /// </summary>
-    public abstract class FileServiceChannel : IServiceChannel
-    {
-        public object Invok(Parameters parameters)
-        {
-            throw new NotImplementedException();
-        }
+
     }
     //public interface Aaa
     //{

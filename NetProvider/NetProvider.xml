@@ -72,11 +72,6 @@
             <param name="objs"></param>
             <returns></returns>
         </member>
-        <member name="T:NetProvider.Factory.FileServiceChannel">
-            <summary>
-            定义web上传下载服务通道
-            </summary>
-        </member>
         <member name="P:NetProvider.Network.FileTransferAttribute.Uri">
             <summary>
             

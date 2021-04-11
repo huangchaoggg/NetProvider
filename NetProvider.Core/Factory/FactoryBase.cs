@@ -1,7 +1,10 @@
-﻿using System;
+﻿using NetProvider.Core.Extension;
+
+using System;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
+using System.Runtime.CompilerServices;
 
 namespace NetProvider.Core.Channels
 {
@@ -48,8 +51,15 @@ namespace NetProvider.Core.Channels
                 MethodAttributes.NewSlot |
                 MethodAttributes.Final, info.ReturnType, ParameterTypes);
             ILGenerator iL = methodBuilder.GetILGenerator();//生成中间语言指令
-            MethodInfo methodInfo = typeof(Serrvice).GetMethod("Invok", BindingFlags.Public | BindingFlags.Instance);
-
+            MethodInfo methodInfo; //= typeof(Serrvice).GetMethod(nameof(IServiceChannel.Invok), BindingFlags.Public | BindingFlags.Instance);
+            if (info.ReturnType.IsTask())
+            {
+                methodInfo = typeof(Serrvice).GetMethod(nameof(IServiceChannel.InvokAsync), BindingFlags.Public | BindingFlags.Instance);
+            }
+            else
+            {
+                methodInfo = typeof(Serrvice).GetMethod(nameof(IServiceChannel.Invok), BindingFlags.Public | BindingFlags.Instance);
+            }
             LocalBuilder lisLb = iL.DeclareLocal(typeof(object[]));
             LocalBuilder parameters = iL.DeclareLocal(typeof(Parameters));
             ConstructorInfo constructorInfo = parameters.LocalType.GetConstructor(new Type[] {

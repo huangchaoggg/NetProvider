@@ -5,6 +5,8 @@ using NetProvider.Core.Extension;
 using NetProvider.Sock.Net;
 using NetProvider.Sock.Net.Inter;
 
+using System.Threading.Tasks;
+
 namespace NetProvider.Sock.Factory
 {
     public class SocketServiceChannel: ISocketServiceChannel
@@ -28,6 +30,11 @@ namespace NetProvider.Sock.Factory
             string value = parameters.ParametersInfo[0].ToJsonString();
             SocketClient.SendMessage(value);
             return 0;
+        }
+
+        public Task<object> InvokAsync(Parameters parameters)
+        {
+            throw new System.NotImplementedException();
         }
     }
 }

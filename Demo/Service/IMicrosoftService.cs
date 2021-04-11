@@ -12,13 +12,15 @@ namespace Demo.Service
         /// 请求数据调用
         /// </summary>
         /// <returns></returns>
-        [Request(RequestType.Get, "zh-cn/dotnet/breadcrumb/toc.json")]
-        Task<string> GetJson();
+        [Request(RequestType.Get, "/zh-cn/dotnet/fundamentals/toc.json")]
+        string GetJson();
+        //[Request(RequestType.Get, "/zh-cn/dotnet/fundamentals/toc.json")]
+        //Task<string> GetJson();
         /// <summary>
         ///对象类型调用
         /// </summary>
         /// <returns></returns>
-        [Request(RequestType.Get, "zh-cn/dotnet/breadcrumb/toc.json")]
+        [Request(RequestType.Get, "/zh-cn/dotnet/fundamentals/toc.json")]
         Task<Meta> GetMeta();
         /// <summary>
         /// 无返回值调用
@@ -39,11 +41,17 @@ namespace Demo.Service
             //wc.Add(HttpRequestHeader.AcceptEncoding, "Accept-Encoding");
             //wc.Add(HttpRequestHeader.Connection, "keep-alive");
         }
-        
-        public async Task<string> GetJson()
+
+        public string GetJson()
         {
-            return await this.Channel.GetJson();
+            throw new System.NotImplementedException();
         }
+
+        //public async Task<string> GetJson()
+        //{
+        //    string s= await this.Channel.GetJson();
+        //    return s;
+        //}
 
         public async Task<Meta> GetMeta()
         {

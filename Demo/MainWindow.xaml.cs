@@ -22,23 +22,33 @@ namespace Demo
         //IMicrosoftService service = new MicrosoftService("https://docs.microsoft.com");
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            Task<string> rd = service.GetJson();
-            rd.ContinueWith((rr) =>
+            string rd= service.GetJson();
+            Dispatcher.Invoke(() =>
             {
-                Dispatcher.Invoke(() =>
-                {
-                    TextBox1.Text = rr.Result;
-                    Meta mt = rr.Result.ToObject<Meta>();
-                    treeView.ItemsSource = null;
-                    treeView.ItemsSource = mt.items;
-                });
+                TextBox1.Text = rd;
+                Meta mt = rd.ToObject<Meta>();
+                treeView.ItemsSource = null;
+                treeView.ItemsSource = mt.items;
             });
-            
+            //Task<string> rd = service.GetJson();
+            //rd.ContinueWith((rr) =>
+            //{
+            //    Dispatcher.Invoke(() =>
+            //    {
+            //        TextBox1.Text = rr.Result;
+            //        Meta mt = rr.Result.ToObject<Meta>();
+            //        treeView.ItemsSource = null;
+            //        treeView.ItemsSource = mt.items;
+            //    });
+            //});
         }
 
         private void Button_Click_1(object sender, RoutedEventArgs e)
         {
-            Task<Meta> mt= service.GetMeta();
+            //Meta mt = await service.GetMeta();
+            //treeView.ItemsSource = null;
+            //treeView.ItemsSource = mt.items;
+            Task<Meta> mt = service.GetMeta();
             mt.ContinueWith((rt) =>
             {
                 Dispatcher.Invoke(() =>
@@ -46,7 +56,7 @@ namespace Demo
                     treeView.ItemsSource = null;
                     treeView.ItemsSource = rt.Result.items;
                 });
-                
+
             });
         }
 

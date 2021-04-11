@@ -23,7 +23,8 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DocumentationFile>D:\Source\Repos\NetProvider\NetProvider\NetProvider.xml</DocumentationFile>
+    <DocumentationFile>C:\Users\黄超\Source\Repos\huangchaoggg\NetProvider\NetProvider\NetProvider.xml</DocumentationFile>
+    <OutputPath></OutputPath>
   </PropertyGroup>
 
   <ItemGroup>

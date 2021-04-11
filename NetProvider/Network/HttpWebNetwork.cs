@@ -76,6 +76,7 @@ namespace NetProvider.Network
         /// <param name="uri"></param>
         /// <param name="body"></param>
         /// <returns></returns>
+        [Obsolete]
         public Task<HttpResponseMessage> PostRequest(string uri, FileStream body)
         {
             byte[] bytes = new byte[body.Length];
