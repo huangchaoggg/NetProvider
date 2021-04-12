@@ -55,15 +55,24 @@ namespace NetProvider.Factory
             Type t = this.GetType();
             MethodInfo info = t.GetInterface(parameters.InterfaceName).GetMethod(parameters.MethodName);
             Attribute[] attributes = Attribute.GetCustomAttributes(info);
-            return RunMethod(attributes, info.ReturnType, info.GetParameters(), parameters)
+            Type retType = info.ReturnType;
+            if (info.ReturnType.IsTask())
+            {
+                var args = info.ReturnType.GenericTypeArguments;
+                if (args.Length > 0)
+                {
+                    retType = args[0];
+                }
+            }
+            return RunMethod(attributes, retType, info.GetParameters(), parameters)
             .ContinueWith((result) =>
             {
                 object ret;
                 if (result.Exception != null)
-                    ret = filterManagement.CallExceptionFilter(result.Exception, info.ReturnType, parameters, this);
+                    ret = filterManagement.CallExceptionFilter(result.Exception, retType, parameters, this);
                 else
                 {
-                    ret = filterManagement.CallMessageFilter(result.Result, info.ReturnType, parameters, this);
+                    ret = result.Result;
                 }
                 return ret;
             });
@@ -83,41 +92,42 @@ namespace NetProvider.Factory
             HttpResponseMessage rd = await Request(ra, parameterInfos, parameters.ParametersInfo);
             if (rd.IsSuccessStatusCode)
             {
-                Type respType = retType;
-                if (retType.IsTask())
+                object value;
+               
+                if (retType == typeof(HttpResponseMessage))
                 {
-                    var args = retType.GenericTypeArguments;
-                    if (args.Length > 0)
+                    value= rd;
+                }
+                else if (retType == typeof(Stream))
+                {
+                    value= await rd.Content.ReadAsStreamAsync();
+                }
+                else if (retType == typeof(byte[]))
+                {
+                    value= await rd.Content.ReadAsByteArrayAsync();
+                }
+                else if (retType == typeof(void))
+                {
+                    value= Task.CompletedTask;
+                }
+                else
+                {
+                    value= await rd.Content.ReadAsStringAsync();
+                }
+
+                var retValue = filterManagement.CallMessageFilter(value, retType, parameters, this);
+                if(retValue is string v)
+                {
+                    if (retType == typeof(string))
                     {
-                        respType = args[0];
+                        
+                    }
+                    else if (retType.IsClass&&!retType.IsEnum&&!retType.IsValueType)
+                    {
+                        retValue = v.ToObject(retType);
                     }
                 }
-                if (respType == typeof(HttpResponseMessage))
-                {
-                    return rd;
-                }
-                if (respType == typeof(Stream))
-                {
-                    return await rd.Content.ReadAsStreamAsync();
-                }
-                if (respType == typeof(byte[]))
-                {
-                    return await rd.Content.ReadAsByteArrayAsync();
-                }
-                if (respType == typeof(void))
-                {
-                    return Task.CompletedTask;
-                }
-                string value= await rd.Content.ReadAsStringAsync();
-                if (respType == typeof(string))
-                {
-                    return value;
-                }
-                if (!string.IsNullOrWhiteSpace(value))
-                {
-                    var v= value.ToObject(respType);
-                    return v;
-                }
+                return retValue;
             }
             throw new MessageException(rd.ToString());
         }
