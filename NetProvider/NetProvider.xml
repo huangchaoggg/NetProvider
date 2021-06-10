@@ -115,6 +115,12 @@
             http请求
             </summary>
         </member>
+        <member name="M:NetProvider.Network.HttpWebNetwork.SetContentHeader(System.Net.Http.Headers.HttpHeaders)">
+            <summary>
+            设置默认内容头
+            </summary>
+            <param name="headers"></param>
+        </member>
         <member name="M:NetProvider.Network.HttpWebNetwork.PostRequest(System.String,System.IO.FileStream)">
             <summary>
             文件上载
