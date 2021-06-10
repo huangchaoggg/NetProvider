@@ -6,7 +6,7 @@ namespace NetProvider.Network
     /// 
     /// </summary>
     [AttributeUsage(AttributeTargets.Method)]
-    public class RequestAttribute : Attribute
+    public class RequestAttribute : RouteAttribute
     {
         /// <summary>
         /// 
@@ -14,19 +14,13 @@ namespace NetProvider.Network
         public RequestType RequestType { get;private set; }
 
         /// <summary>
-        /// 
-        /// </summary>
-        public string Uri { get; private set; }
-
-        /// <summary>
         /// 方法属性
         /// </summary>
         /// <param name="requestType"></param>
         /// <param name="uri"></param>
-        public RequestAttribute(RequestType requestType, string uri)
+        public RequestAttribute(RequestType requestType, string uri):base(uri)
         {
             RequestType = requestType;
-            Uri = uri;
         }
     }
 }

@@ -23,6 +23,7 @@ namespace NetProvider.Network
         {
             try
             {
+                //return clientSetting.Client.GetAsync(uri);
                 return HttpRequest(uri, RequestType.Get, null);
 
             }catch(TaskCanceledException e)
@@ -58,16 +59,17 @@ namespace NetProvider.Network
 
             HttpRequestMessage message = new HttpRequestMessage(new HttpMethod(type.ToString()), uri);
             HttpContent content = null;
-            if (type != RequestType.Get)
+
+            if (!string.IsNullOrWhiteSpace(body))
             {
-                if (string.IsNullOrWhiteSpace(body))
-                {
-                    throw new MessageException("缺少Body参数");
-                }
                 content = new StringContent(body);
-                SetContentHeader(content.Headers);
-                message.Content = content;
             }
+            else
+            {
+                content = new StringContent("");
+            }
+            message.Content = content;
+            SetContentHeader(content.Headers);
             return clientSetting.Client.SendAsync(message);
         }
         /// <summary>

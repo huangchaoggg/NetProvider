@@ -45,7 +45,7 @@ namespace NetProvider.Core.Filter
             IServiceChannel serviceChannel) where Excp: Exception
         {
             if (ExceptionFilters.Count == 0)
-                return null;
+                 throw new ProviderException(value.GetBaseException().Message);
             var context= new ExceptionFilterContext(retType, parameters, serviceChannel, ExceptionFilters.First);
             var obj= context.Invoke(null, value);
             if (!context.ExceptionHandled)

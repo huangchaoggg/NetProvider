@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using System.Windows;
 
 using Autofac;
@@ -22,14 +23,20 @@ namespace Demo
         //IMicrosoftService service = new MicrosoftService("https://docs.microsoft.com");
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            string rd= service.GetJson();
-            Dispatcher.Invoke(() =>
+            try
             {
-                TextBox1.Text = rd;
-                Meta mt = rd.ToObject<Meta>();
-                treeView.ItemsSource = null;
-                treeView.ItemsSource = mt.items;
-            });
+                string rd= service.GetJson();
+                Dispatcher.Invoke(() =>
+                {
+                    TextBox1.Text = rd;
+                    Meta mt = rd.ToObject<Meta>();
+                    treeView.ItemsSource = null;
+                    treeView.ItemsSource = mt.items;
+                });
+            }catch(Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
             //Task<string> rd = service.GetJson();
             //rd.ContinueWith((rr) =>
             //{
