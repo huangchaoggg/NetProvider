@@ -21,42 +21,40 @@ namespace NetProvider.Network
         }
         public Task<HttpResponseMessage> GetRequest(string uri)
         {
-            try
-            {
-                //return clientSetting.Client.GetAsync(uri);
-                return HttpRequest(uri, RequestType.Get, null);
-
-            }catch(TaskCanceledException e)
-            {
-                throw new ProviderException(e.Message);
-            }
+            //return clientSetting.Client.GetAsync(uri);
+            return HttpRequest(uri, RequestType.Get, null);
         }
 
         public Task<HttpResponseMessage> PostRequest(string uri)
         {
-            HttpContent content = new StringContent("");
-            SetContentHeader(content.Headers);
-            return clientSetting.Client.PostAsync(uri, content);
+            //HttpContent content = new StringContent("");
+            //SetContentHeader(content.Headers);
+            //return clientSetting.Client.PostAsync(uri, content);
+            return HttpRequest(uri, RequestType.Post,null);
         }
 
         public Task<HttpResponseMessage> PostRequest(string uri, string body)
         {
-            HttpContent content = new StringContent(body);
-            SetContentHeader(content.Headers);
-            return clientSetting.Client.PostAsync(uri, content);
+            //HttpContent content = new StringContent(body);
+            //SetContentHeader(content.Headers);
+            //return clientSetting.Client.PostAsync(uri, content);
+            return HttpRequest(uri, RequestType.Post, body);
         }
+        /// <summary>
+        /// 设置默认内容头
+        /// </summary>
+        /// <param name="headers"></param>
         private void SetContentHeader(HttpHeaders headers)
         {
             foreach (var header in clientSetting.DefaultContentHeaders)
             {
-                if (headers.Contains(header.Key))
-                    headers.Remove(header.Key);
-                headers.Add(header.Key, header.Value);
+                //if (headers.Contains(header.Key))
+                //    headers.Remove(header.Key);
+                headers.TryAddWithoutValidation(header.Key, header.Value);
             }
         }
         public virtual Task<HttpResponseMessage> HttpRequest(string uri, RequestType type, string body)
         {
-
             HttpRequestMessage message = new HttpRequestMessage(new HttpMethod(type.ToString()), uri);
             HttpContent content = null;
 
@@ -64,12 +62,11 @@ namespace NetProvider.Network
             {
                 content = new StringContent(body);
             }
-            else
+            if (content != null)
             {
-                content = new StringContent("");
+                message.Content = content;
+                SetContentHeader(content.Headers);
             }
-            message.Content = content;
-            SetContentHeader(content.Headers);
             return clientSetting.Client.SendAsync(message);
         }
         /// <summary>

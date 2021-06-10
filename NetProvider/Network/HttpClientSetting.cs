@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Security.Cryptography.X509Certificates;
 
 namespace NetProvider.Network
@@ -40,14 +41,15 @@ namespace NetProvider.Network
         {
             Client = httpClient;
             FilterManagement = new FilterManagement();
+            DefaultContentHeaders = new Dictionary<string, string>();
         }
+
         /// <summary>
         /// 默认内容头
         /// </summary>
-        public Dictionary<string, string> DefaultContentHeaders { get; private set; } = new Dictionary<string, string>();
+        public Dictionary<string, string> DefaultContentHeaders { get; private set; }
 
         internal FilterManagement FilterManagement { get; private set; }
-        //public IDictionary<string,IMessageFilter> Filters { get; } = new Dictionary<string,IMessageFilter>();
         public HttpClient Client { get; private set; }
 
         public void AddMessageFilter(IMessageFilter filter)
@@ -79,21 +81,16 @@ namespace NetProvider.Network
             {
                 if (!Client.DefaultRequestHeaders.TryAddWithoutValidation(v1, v2))
                 {
-                    Client.DefaultRequestHeaders.Remove(v1);
-                    Client.DefaultRequestHeaders.Add(v1, v2);
+                    if (DefaultContentHeaders.ContainsKey(v1))
+                    {
+                        DefaultContentHeaders[v1] = v2;
+                    }
+                    DefaultContentHeaders.Add(v1, v2);
                 }
             }
-            catch (InvalidOperationException ex)
+            catch (Exception)
             {
-                if (DefaultContentHeaders.ContainsKey(v1))
-                {
-                    DefaultContentHeaders[v1] = v2;
-                }
-                DefaultContentHeaders.Add(v1, v2);
-            }
-            catch (Exception e)
-            {
-                throw e;
+                throw;
             }
         }
 

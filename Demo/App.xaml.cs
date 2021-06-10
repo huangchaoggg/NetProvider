@@ -19,6 +19,7 @@ namespace Demo
         public App()
         {
             HttpClientSetting.DefaultSetting.SetHeader("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.114 Safari/537.36 Edg/89.0.774.75");
+            HttpClientSetting.DefaultSetting.SetHeader("Content-Type", "text");
             //var service = ApiServiceCreater.CreateObject<IMicrosoftService>("https://docs.microsoft.com");
             //buider.RegisterInstance(service);
             buider.Register(new System.Func<IComponentContext, IMicrosoftService>((e) => 
