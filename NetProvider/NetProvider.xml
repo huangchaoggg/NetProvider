@@ -158,16 +158,27 @@
             
             </summary>
         </member>
-        <member name="P:NetProvider.Network.RequestAttribute.Uri">
-            <summary>
-            
-            </summary>
-        </member>
         <member name="M:NetProvider.Network.RequestAttribute.#ctor(NetProvider.RequestType,System.String)">
             <summary>
             方法属性
             </summary>
             <param name="requestType"></param>
+            <param name="uri"></param>
+        </member>
+        <member name="T:NetProvider.Network.RouteAttribute">
+            <summary>
+            主机
+            </summary>
+        </member>
+        <member name="P:NetProvider.Network.RouteAttribute.Uri">
+            <summary>
+            主机地址
+            </summary>
+        </member>
+        <member name="M:NetProvider.Network.RouteAttribute.#ctor(System.String)">
+            <summary>
+            包含主机地址的标签
+            </summary>
             <param name="uri"></param>
         </member>
         <member name="F:NetProvider.RequestType.Get">

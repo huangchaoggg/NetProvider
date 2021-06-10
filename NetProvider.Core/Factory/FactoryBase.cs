@@ -55,16 +55,27 @@ namespace NetProvider.Core.Channels
             if (info.ReturnType.IsTask())
             {
                 methodInfo = typeof(Serrvice).GetMethod(nameof(IServiceChannel.InvokAsync), BindingFlags.Public | BindingFlags.Instance);
+                if(info.ReturnType.GenericTypeArguments.Length>0)
+                    methodInfo=methodInfo.MakeGenericMethod(info.ReturnType.GenericTypeArguments);
+                else
+                    methodInfo=methodInfo.MakeGenericMethod(typeof(object));
             }
             else
             {
-                methodInfo = typeof(Serrvice).GetMethod(nameof(IServiceChannel.Invok), BindingFlags.Public | BindingFlags.Instance);
-            }
-            LocalBuilder lisLb = iL.DeclareLocal(typeof(object[]));
-            LocalBuilder parameters = iL.DeclareLocal(typeof(Parameters));
+                methodInfo = typeof(Serrvice).GetMethod(nameof(IServiceChannel.Invok),BindingFlags.Public | BindingFlags.Instance);
+                if(info.ReturnType!=typeof(void))
+                    methodInfo=methodInfo.MakeGenericMethod(info.ReturnType);
+                else
+                    methodInfo=methodInfo.MakeGenericMethod(typeof(object));
+            }       
+            //LocalBuilder retlb = iL.DeclareLocal(info.ReturnType);
+            LocalBuilder lisLb = iL.DeclareLocal(typeof(object[]));//原始对象
+            LocalBuilder parameters = iL.DeclareLocal(typeof(Parameters));//封送对象
             ConstructorInfo constructorInfo = parameters.LocalType.GetConstructor(new Type[] {
                     typeof(string),typeof(string),typeof(object[]) });
             iL.Emit(OpCodes.Nop);
+            //iL.Emit(OpCodes.Ldftn, methodInfo);
+            //iL.Emit(OpCodes.Stloc, methodlb);
             int leth = info.GetParameters().Length;
             if (leth > 0)
             {
@@ -88,11 +99,12 @@ namespace NetProvider.Core.Channels
             iL.Emit(OpCodes.Ldloc, lisLb.LocalIndex);
             iL.Emit(OpCodes.Newobj, constructorInfo);
             iL.Emit(OpCodes.Stloc, parameters);
-
+            
             iL.Emit(OpCodes.Ldarg_0);
             iL.Emit(OpCodes.Ldloc, parameters);
+            //iL.Emit(OpCodes.Ldloc, methodlb);
+            //iL.EmitCalli(OpCodes.Calli, CallingConventions.HasThis, info.ReturnType, new Type[] { typeof(Parameters) },null);
             iL.EmitCall(OpCodes.Call, methodInfo, new Type[] { typeof(Parameters) });
-
             iL.Emit(OpCodes.Ret);
 
             typeBuilder.DefineMethodOverride(methodBuilder, type.GetMethod(info.Name));

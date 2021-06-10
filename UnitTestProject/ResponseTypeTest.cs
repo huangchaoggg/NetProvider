@@ -7,7 +7,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
+using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace UnitTestProject
 {
@@ -77,6 +80,12 @@ namespace UnitTestProject
             TestContext.WriteLine(message.Content.ToString());
             byte[] vs = testService.GetBytes();
             TestContext.WriteLine(Encoding.UTF8.GetString(vs));
+
+            //Task<string> st = testService.GetJsonAsync();
+            //st.ContinueWith(rr =>
+            //{
+            //    TestContext.WriteLine(rr.Result);
+            //});
         }
     }
     public interface ITestService
@@ -87,6 +96,9 @@ namespace UnitTestProject
         /// <returns></returns>
         [Request(RequestType.Get, "/zh-cn/dotnet/fundamentals/toc.json")]
         string GetJson();
+
+        [Request(RequestType.Get, "/zh-cn/dotnet/fundamentals/toc.json")]
+        Task<string> GetJsonAsync();
 
         [Request(RequestType.Get, "/zh-cn/dotnet/fundamentals/toc.json")]
         Stream GetStream();

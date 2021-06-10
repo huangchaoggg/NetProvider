@@ -1,16 +1,16 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFrameworks>netstandard2.0;net5.0</TargetFrameworks>
     <AutoGenerateBindingRedirects>false</AutoGenerateBindingRedirects>
     <Authors>576181574@qq.com</Authors>
     <Description>web api 客户端通信库</Description>
     <PackageProjectUrl>https://github.com/huangchaoggg/NetProvider</PackageProjectUrl>
     <RepositoryUrl>https://github.com/huangchaoggg/NetProvider</RepositoryUrl>
     <RepositoryType>github</RepositoryType>
-    <Version>1.0.1</Version>
-    <AssemblyVersion>1.0.1.0</AssemblyVersion>
-    <FileVersion>1.0.1.0</FileVersion>
+    <Version>1.0.3</Version>
+    <AssemblyVersion>1.0.3.0</AssemblyVersion>
+    <FileVersion>1.0.3.0</FileVersion>
     <Configurations>Debug;Release;Test</Configurations>
   </PropertyGroup>
 

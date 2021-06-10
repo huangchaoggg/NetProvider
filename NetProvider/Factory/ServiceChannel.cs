@@ -13,6 +13,7 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -39,18 +40,72 @@ namespace NetProvider.Factory
             HttpWebNetwork = new HttpWebNetwork(setting);
         }
 
-        public object Invok(Parameters parameters)
+        //public object Invok(Parameters parameters)
+        //{
+        //    Task<object> obj = new Task<object>(() =>
+        //    {
+        //        return InvokAsync(parameters).Result;
+        //    });
+        //    obj.Start();
+        //    return obj.Result;
+
+
+        //}
+        //public Task<object> InvokAsync(Parameters parameters)
+        //{
+        //    Type t = this.GetType();
+        //    MethodInfo info = t.GetInterface(parameters.InterfaceName).GetMethod(parameters.MethodName);
+        //    Attribute[] attributes = Attribute.GetCustomAttributes(info);
+        //    Type retType = info.ReturnType;
+        //    if (info.ReturnType.IsTask())
+        //    {
+        //        var args = info.ReturnType.GenericTypeArguments;
+        //        if (args.Length > 0)
+        //        {
+        //            retType = args[0];
+        //        }
+        //    }
+        //    return RunMethod<object>(attributes, retType, info.GetParameters(), parameters)
+        //    .ContinueWith((result) =>
+        //    {
+        //        object ret;
+        //        if (result.Exception != null)
+        //        {
+        //            try
+        //            {
+        //                ret = filterManagement.CallExceptionFilter(result.Exception, retType, parameters, this);
+
+        //            }catch(ProviderException e)
+        //            {
+        //                ret = null;
+        //                return Task.FromException(e);
+        //            }
+        //        }
+        //        else
+        //        {
+        //            ret = result.Result;
+        //        }
+        //        return ret;
+        //    });
+        //}
+        public T Invok<T>(Parameters parameters) where T : class
         {
-            Task<object> obj = new Task<object>(() =>
+            Task<T> obj = new Task<T>(() =>
             {
-                return InvokAsync(parameters).Result;
+                return InvokAsync<T>(parameters).Result;
             });
             obj.Start();
-            return obj.Result;
-
-
+            try
+            {
+                return obj.Result;
+                
+            }catch(Exception e)
+            {
+                throw e.GetBaseException();
+            }
         }
-        public Task<object> InvokAsync(Parameters parameters)
+
+        public Task<T> InvokAsync<T>(Parameters parameters) where T:class
         {
             Type t = this.GetType();
             MethodInfo info = t.GetInterface(parameters.InterfaceName).GetMethod(parameters.MethodName);
@@ -64,12 +119,22 @@ namespace NetProvider.Factory
                     retType = args[0];
                 }
             }
-            return RunMethod(attributes, retType, info.GetParameters(), parameters)
+            return RunMethod<T>(attributes, retType, info.GetParameters(), parameters)
             .ContinueWith((result) =>
             {
-                object ret;
+                T ret;
                 if (result.Exception != null)
-                    ret = filterManagement.CallExceptionFilter(result.Exception, retType, parameters, this);
+                {
+                    try
+                    {
+                        ret = (T)filterManagement.CallExceptionFilter(result.Exception, retType, parameters, this);
+
+                    }
+                    catch (ProviderException e)
+                    {
+                        throw e;
+                    }
+                }
                 else
                 {
                     ret = result.Result;
@@ -77,7 +142,7 @@ namespace NetProvider.Factory
                 return ret;
             });
         }
-        private async Task<object> RunMethod(Attribute[] attributes, Type retType, ParameterInfo[] parameterInfos, Parameters parameters)
+        private async Task<T> RunMethod<T>(Attribute[] attributes, Type retType, ParameterInfo[] parameterInfos, Parameters parameters) where T : class
         {
             RequestAttribute ra = attributes.FirstOrDefault(s => s is RequestAttribute) as RequestAttribute;
             if (ra == null)
@@ -87,7 +152,8 @@ namespace NetProvider.Factory
                 {
                     throw new MessageException("特性不存在");
                 }
-                return SendStream(sa, parameters.ParametersInfo);
+                await SendStream(sa, parameters.ParametersInfo);
+                return null;
             }
             HttpResponseMessage rd = await Request(ra, parameterInfos, parameters.ParametersInfo);
             if (rd.IsSuccessStatusCode)
@@ -116,6 +182,7 @@ namespace NetProvider.Factory
                 }
 
                 var retValue = filterManagement.CallMessageFilter(value, retType, parameters, this);
+                
                 if(retValue is string v)
                 {
                     if (retType == typeof(string))
@@ -126,8 +193,11 @@ namespace NetProvider.Factory
                     {
                         retValue = v.ToObject(retType);
                     }
+                }else if (retValue is Newtonsoft.Json.Linq.JToken o)
+                {
+                    retValue = o.ToObject(retType);
                 }
-                return retValue;
+                return (T)retValue;
             }
             throw new MessageException(rd.ToString());
         }
@@ -174,7 +244,7 @@ namespace NetProvider.Factory
                 foreach (ParameterInfo p in parameters)
                 {
                     if (objs[p.Position] != null)
-                        sb.Append($" {p.Name}={objs[p.Position]}&");
+                        sb.Append($"{p.Name}={objs[p.Position]}&");
                 }
                 string ss = sb.ToString().TrimEnd('&').Trim();
                 string url = $"{uri}?{ss}";
@@ -229,25 +299,30 @@ namespace NetProvider.Factory
 
     //    object Bbbc();
     //}
-    //public class Test
-    //{
-    //    public int test1()
-    //    {
-    //        return 11;
-    //    }
-    //    public void test2(string a)
-    //    {
-
-    //    }
-    //    public void test3(params string[] aa)
-    //    {
-
-    //    }
-    //    public void test4(int[] sb,params string[] aa)
-    //    {
-
-    //    }
-    //}
+    public class Test : ServiceChannel
+    {
+        public Test(string uri, HttpClientSetting setting) : base(uri, setting) { }
+        public async Task<T> test1<T>() where T:class
+        {
+            return await base.InvokAsync<T>(null);
+        }
+        public void test2<T>() where T:class
+        {
+            T t= test3<T>("ss","dd");
+        }
+        public T test3<T>(params string[] aa) where T:class
+        {
+            return null;
+        }
+        public void test4(int[] sb, params string[] aa)
+        {
+            test5(sb, aa);
+        }
+        public object test5(int[] sb, params string[] aa)
+        {
+            return null;
+        }
+    }
     //public class BBb : Test,Aaa
     //{
     //    public object AAa(object cc)

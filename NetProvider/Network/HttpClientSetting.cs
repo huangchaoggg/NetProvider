@@ -12,7 +12,7 @@ namespace NetProvider.Network
     public class HttpClientSetting
     {
         private CookieContainer CookieContainer;
-        private HttpClientHandler ClientHandler;
+        public HttpClientHandler ClientHandler { get; }
         public HttpClientSetting(params X509Certificate2[] certificate2s)
         {
             CookieContainer = new CookieContainer();
