@@ -18,6 +18,34 @@
             <param name="clientSetting"></param>
             <returns></returns>
         </member>
+        <member name="M:NetProvider.ApiServiceCreater.CreateObject``1">
+            <summary>
+            创建api实例对象
+            </summary>
+            <typeparam name="T">要代理的接口</typeparam>
+            <returns></returns>
+        </member>
+        <member name="M:NetProvider.ApiServiceCreater.CreateObject(System.Type)">
+            <summary>
+            创建api实例对象
+            </summary>
+            <param name="type">要代理的接口</param>
+            <returns></returns>
+        </member>
+        <member name="M:NetProvider.Factory.ApiFactory.CreateChannel``1">
+            <summary>
+            创建通道
+            </summary>
+            <typeparam name="T"></typeparam>
+            <returns></returns>
+        </member>
+        <member name="M:NetProvider.Factory.ApiFactory.CreateChannel(System.Type)">
+            <summary>
+            创建通道
+            </summary>
+            <param name="type"></param>
+            <returns></returns>
+        </member>
         <member name="P:NetProvider.Factory.ChannelFactory`1.Channel">
             <summary>
             代理对象实例
@@ -34,6 +62,18 @@
             <summary>
             web访问器
             </summary>
+        </member>
+        <member name="P:NetProvider.Factory.IWebApiServiceChannel.ClientSetting">
+            <summary>
+            客户端配置
+            </summary>
+        </member>
+        <member name="M:NetProvider.Factory.IWebApiServiceChannel.SetHeader(System.String,System.String)">
+            <summary>
+            设置请求中header参数
+            </summary>
+            <param name="key"></param>
+            <param name="value"></param>
         </member>
         <member name="T:NetProvider.Factory.ServiceChannel">
             <summary>
@@ -72,9 +112,26 @@
             <param name="objs"></param>
             <returns></returns>
         </member>
-        <member name="P:NetProvider.Network.FileTransferAttribute.Uri">
+        <member name="T:NetProvider.Network.FileTransferAttribute">
             <summary>
-            
+            定义文件上传
+            </summary>
+        </member>
+        <member name="T:NetProvider.Network.HostAttribute">
+            <summary>
+            主机和路由配置
+            </summary>
+        </member>
+        <member name="M:NetProvider.Network.HostAttribute.#ctor(System.String,System.Type)">
+            <summary>
+            主机路由配置
+            </summary>
+            <param name="uri">主机地址</param>
+            <param name="clientSettingType">http配置 HttpClientSetting 类型</param>
+        </member>
+        <member name="P:NetProvider.Network.HostAttribute.HttpClientSetting">
+            <summary>
+            客户端网络配置
             </summary>
         </member>
         <member name="M:NetProvider.Network.HttpClientSetting.Buider(System.Net.Http.HttpClient)">
@@ -156,7 +213,7 @@
         </member>
         <member name="T:NetProvider.Network.RequestAttribute">
             <summary>
-            
+            路由路径
             </summary>
         </member>
         <member name="P:NetProvider.Network.RequestAttribute.RequestType">
@@ -173,19 +230,13 @@
         </member>
         <member name="T:NetProvider.Network.RouteAttribute">
             <summary>
-            主机
+            路由
             </summary>
         </member>
         <member name="P:NetProvider.Network.RouteAttribute.Uri">
             <summary>
-            主机地址
+            路由地址
             </summary>
-        </member>
-        <member name="M:NetProvider.Network.RouteAttribute.#ctor(System.String)">
-            <summary>
-            包含主机地址的标签
-            </summary>
-            <param name="uri"></param>
         </member>
         <member name="F:NetProvider.RequestType.Get">
             <summary>
@@ -206,6 +257,20 @@
             <summary>
             请求服务器删除Request-URI所标识的资源。
             </summary>
+        </member>
+        <member name="T:VitalSignsVisualizationDigitalSystem.Server.OpenAPIs.OpenApiExtend">
+            <summary>
+            OpenApi扩展类
+            </summary>
+        </member>
+        <member name="M:VitalSignsVisualizationDigitalSystem.Server.OpenAPIs.OpenApiExtend.AddOpenApi(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Type,System.String)">
+            <summary>
+            OpenApi中间件注入
+            </summary>
+            <param name="services"></param>
+            <param name="type">要代理的类型查找起点</param>
+            <param name="baseUri">默认地址</param>
+            <returns></returns>
         </member>
     </members>
 </doc>

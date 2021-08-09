@@ -2,10 +2,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Security.Cryptography.X509Certificates;
 
 namespace NetProvider.Network
@@ -30,6 +28,7 @@ namespace NetProvider.Network
 
             Buider(new HttpClient(ClientHandler));
         }
+        [Obsolete("请继承该类然后调用 Buider 函数")]
         public HttpClientSetting(HttpClient httpClient)
         {
             Buider(httpClient);
@@ -37,7 +36,7 @@ namespace NetProvider.Network
         /// <summary>
         /// 构建
         /// </summary>
-        private void Buider(HttpClient httpClient)
+        protected void Buider(HttpClient httpClient)
         {
             Client = httpClient;
             FilterManagement = new FilterManagement();
@@ -49,7 +48,7 @@ namespace NetProvider.Network
         /// </summary>
         public Dictionary<string, string> DefaultContentHeaders { get; private set; }
 
-        internal FilterManagement FilterManagement { get; private set; }
+        public FilterManagement FilterManagement { get; private set; }
         public HttpClient Client { get; private set; }
 
         public void AddMessageFilter(IMessageFilter filter)

@@ -10,7 +10,7 @@ namespace NetProvider.Core.Filter
     {
         public bool ExceptionHandled { get; set; }
 
-        public Exception Exception { get; private set; }
+        public Exception Exception { get; internal set; }
 
         public ExceptionFilterContext(Type retType, Parameters parameters,
             IServiceChannel serviceChannel,
@@ -32,6 +32,16 @@ namespace NetProvider.Core.Filter
             var context= new ExceptionFilterContext(RetType, Parameters, ServiceChannel, filter_node.Next);
             context.ExceptionHandled = ExceptionHandled;
             return context;
+        }
+        public override object Next(object value)
+        {
+            ExceptionFilterContext fc = NextContext as ExceptionFilterContext;
+            if (fc != null)
+            {
+                fc.Exception = value as Exception;
+                return fc.filter_node.Value.Filter(fc);
+            }
+            return value;
         }
     }
 }

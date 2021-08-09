@@ -5,15 +5,11 @@ using NetProvider.Core.Filter;
 using NetProvider.Network;
 using NetProvider.Network.Inter;
 
-using Newtonsoft.Json;
-
 using System;
-using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -26,7 +22,7 @@ namespace NetProvider.Factory
     public abstract class ServiceChannel : IWebApiServiceChannel
     {
         private FilterManagement filterManagement;
-        public string Uri { get; private set; }
+        public string Uri { get; set; }
         /// <summary>
         /// web访问器
         /// </summary>
@@ -39,7 +35,21 @@ namespace NetProvider.Factory
             filterManagement = this.ClientSetting.FilterManagement;
             HttpWebNetwork = new HttpWebNetwork(setting);
         }
-
+        public ServiceChannel(Type type)
+        {
+            if (type == null)
+                throw new ProviderException("实例化失败,实例化参数为空");
+            if (type.IsInterface)
+            {
+               HostAttribute att= type.GetCustomAttribute<HostAttribute>();
+                if (att == null)
+                    throw new ProviderException("HostAttribute 未设置");
+                this.Uri = att.Uri;
+                this.ClientSetting = att.HttpClientSetting;
+                this.filterManagement=this.ClientSetting.FilterManagement;
+                this.HttpWebNetwork = new HttpWebNetwork(ClientSetting);
+            }
+        }
         //public object Invok(Parameters parameters)
         //{
         //    Task<object> obj = new Task<object>(() =>
@@ -288,6 +298,10 @@ namespace NetProvider.Factory
             return HttpWebNetwork.SendStream(uri, sa.ContentName, sa.ContentType, objs);
         }
 
+        public void SetHeader(string key, string value)
+        {
+            ClientSetting.SetHeader(key, value);
+        }
     }
     //public interface Aaa
     //{
@@ -299,6 +313,7 @@ namespace NetProvider.Factory
 
     //    object Bbbc();
     //}
+    //[Host("http://www.baidu.com",typeof(HttpClientSetting))]
     public class Test : ServiceChannel
     {
         public Test(string uri, HttpClientSetting setting) : base(uri, setting) { }

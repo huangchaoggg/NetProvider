@@ -15,7 +15,8 @@ namespace NetProvider.Core.Filter
             if (MessageFilters.Count == 0)
                 return value;
             var message = new MessageFilterContext(retType, parameters, serviceChannel, MessageFilters.First);
-            return message.Invoke(null,value);
+            message.Value = value;
+            return message.filter_node.Value.Filter(message);
         }
         public void AddMessageFilter(IMessageFilter filter)
         {
@@ -47,7 +48,8 @@ namespace NetProvider.Core.Filter
             if (ExceptionFilters.Count == 0)
                  throw new ProviderException(value.GetBaseException().Message);
             var context= new ExceptionFilterContext(retType, parameters, serviceChannel, ExceptionFilters.First);
-            var obj= context.Invoke(null, value);
+            context.Exception = value;
+            var obj= context.Next(context);
             if (!context.ExceptionHandled)
             {
                 throw new ProviderException(value.GetBaseException().Message);

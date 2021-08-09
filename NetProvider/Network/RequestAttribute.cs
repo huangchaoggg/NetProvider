@@ -3,7 +3,7 @@
 namespace NetProvider.Network
 {
     /// <summary>
-    /// 
+    /// 路由路径
     /// </summary>
     [AttributeUsage(AttributeTargets.Method)]
     public class RequestAttribute : RouteAttribute
@@ -18,8 +18,9 @@ namespace NetProvider.Network
         /// </summary>
         /// <param name="requestType"></param>
         /// <param name="uri"></param>
-        public RequestAttribute(RequestType requestType, string uri):base(uri)
+        public RequestAttribute(RequestType requestType, string uri)
         {
+            Uri = uri;
             RequestType = requestType;
         }
     }

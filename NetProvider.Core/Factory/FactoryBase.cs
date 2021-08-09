@@ -26,11 +26,12 @@ namespace NetProvider.Core.Channels
         /// <param name="typeBuilder"></param>
         /// <param name="type"></param>
         /// <typeparam name="T"></typeparam>
-        protected virtual void DynamicMethod<Serrvice,T>(MethodInfo[] infos, TypeBuilder typeBuilder, Type type) where Serrvice : class, IServiceChannel
+        protected virtual void DynamicMethod<Serrvice>(MethodInfo[] infos, TypeBuilder typeBuilder, Type type) where Serrvice : class, IServiceChannel
         {
+            if (infos == null || infos.Length == 0) return;
             foreach (MethodInfo info in infos)
             {
-                MethodOverride<Serrvice,T>(info, typeBuilder, type);
+                MethodOverride<Serrvice>(info, typeBuilder, type);
             }
         }
         /// <summary>
@@ -41,7 +42,7 @@ namespace NetProvider.Core.Channels
         /// <param name="iL"></param>
         /// <param name="type"></param>
         ///<typeparam name="T"></typeparam>
-        private void MethodOverride<Serrvice,T>(MethodInfo info, TypeBuilder typeBuilder, Type type) where Serrvice: class,IServiceChannel
+        private void MethodOverride<Serrvice>(MethodInfo info, TypeBuilder typeBuilder, Type type) where Serrvice: class,IServiceChannel
         {
             Type[] ParameterTypes = info.GetParameters().Select(s => s.ParameterType).ToArray();
             MethodBuilder methodBuilder = typeBuilder.DefineMethod(info.Name, MethodAttributes.Public |
@@ -94,7 +95,7 @@ namespace NetProvider.Core.Channels
                 }
                 iL.Emit(OpCodes.Stloc, lisLb.LocalIndex);
             }
-            iL.Emit(OpCodes.Ldstr, typeof(T).Name);
+            iL.Emit(OpCodes.Ldstr, type.Name);
             iL.Emit(OpCodes.Ldstr, info.Name);
             iL.Emit(OpCodes.Ldloc, lisLb.LocalIndex);
             iL.Emit(OpCodes.Newobj, constructorInfo);
@@ -140,6 +141,7 @@ namespace NetProvider.Core.Channels
         /// </summary>
         /// <typeparam name="T">api接口</typeparam>
         /// <returns></returns>
-       public abstract Type CreateChannel<T>() where T : class;
+        public abstract Type CreateChannel<T>() where T : class;
+        public abstract Type CreateChannel(Type type);
     }
 }

@@ -22,6 +22,10 @@ namespace NetProvider.Core.Filter
             NextContext = CreateNextContext();
         }
         protected abstract FilterContext<T,V> CreateNextContext();
+
+        [Obsolete("请使用 Next 方法")]
         public abstract object Invoke(FilterContext<T,V> context, object value);
+
+        public abstract object Next(object value);
     }
 }

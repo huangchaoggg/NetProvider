@@ -3,23 +3,23 @@
 namespace NetProvider.Network
 {
     /// <summary>
-    /// 主机
+    /// 路由
     /// </summary>
     [AttributeUsage(AttributeTargets.Class|AttributeTargets.Interface|AttributeTargets.Method)]
-    public class RouteAttribute:Attribute
+    public abstract class RouteAttribute:Attribute
     {
         /// <summary>
-        /// 主机地址
+        /// 路由地址
         /// </summary>
-        public string Uri { get; private set; }
+        public string Uri { get; set; }
 
-        /// <summary>
-        /// 包含主机地址的标签
-        /// </summary>
-        /// <param name="uri"></param>
-        public RouteAttribute(string uri=null)
-        {
-            this.Uri = uri;
-        }
+        ///// <summary>
+        ///// 包含主机地址的标签
+        ///// </summary>
+        ///// <param name="uri"></param>
+        //public RouteAttribute(string uri)
+        //{
+        //    this.Uri = uri;
+        //}
     }
 }
