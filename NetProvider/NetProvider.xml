@@ -134,6 +134,39 @@
             客户端网络配置
             </summary>
         </member>
+        <member name="T:NetProvider.Network.FileTransferData">
+            <summary>
+            文件
+            </summary>
+        </member>
+        <member name="M:NetProvider.Network.FileTransferData.#ctor(System.String,System.String,System.String)">
+            <summary>
+            
+            </summary>
+            <param name="filePath"></param>
+            <param name="contentName"></param>
+            <param name="contentType"></param>
+        </member>
+        <member name="P:NetProvider.Network.FileTransferData.FileName">
+            <summary>
+            自定义文件名
+            </summary>
+        </member>
+        <member name="P:NetProvider.Network.FileTransferData.ContentName">
+            <summary>
+            内容名
+            </summary>
+        </member>
+        <member name="P:NetProvider.Network.FileTransferData.UploadFile">
+            <summary>
+            上传的文件
+            </summary>
+        </member>
+        <member name="P:NetProvider.Network.FileTransferData.ContentType">
+            <summary>
+            内容类型
+            </summary>
+        </member>
         <member name="M:NetProvider.Network.HttpClientSetting.Buider(System.Net.Http.HttpClient)">
             <summary>
             构建
@@ -196,6 +229,16 @@
             <param name="objs"></param>
             <returns></returns>
         </member>
+        <member name="M:NetProvider.Network.HttpWebNetwork.SendStream(System.String,System.Object[])">
+            <summary>
+            文件上传
+            </summary>
+            <param name="uri"></param>
+            <param name="contentName"></param>
+            <param name="contentType"></param>
+            <param name="objs"></param>
+            <returns></returns>
+        </member>
         <member name="M:NetProvider.Network.Inter.IHttpWebNetwork.GetRequest(System.String)">
             <summary>
             请求Get数据
@@ -208,6 +251,33 @@
             文件流直传
             </summary>
             <param name="uri"></param>
+            <param name="body"></param>
+            <returns></returns>
+        </member>
+        <member name="M:NetProvider.Network.Inter.IHttpWebNetwork.SendStream(System.String,System.String,System.String,System.Object[])">
+            <summary>
+            发送文件
+            </summary>
+            <param name="uri"></param>
+            <param name="contentName"></param>
+            <param name="contentType"></param>
+            <param name="objs"></param>
+            <returns></returns>
+        </member>
+        <member name="M:NetProvider.Network.Inter.IHttpWebNetwork.SendStream(System.String,System.Object[])">
+            <summary>
+            发送文件
+            </summary>
+            <param name="uri"></param>
+            <param name="objs"></param>
+            <returns></returns>
+        </member>
+        <member name="M:NetProvider.Network.Inter.IHttpWebNetwork.HttpRequest(System.String,NetProvider.RequestType,System.String)">
+            <summary>
+            发送请求
+            </summary>
+            <param name="uri"></param>
+            <param name="type"></param>
             <param name="body"></param>
             <returns></returns>
         </member>

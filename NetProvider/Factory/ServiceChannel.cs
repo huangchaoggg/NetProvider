@@ -228,6 +228,12 @@ namespace NetProvider.Factory
                 case RequestType.Get:
                     rd = GetRequest(uri, parameters, objs);
                     break;
+                case RequestType.Delete:
+                    rd = ClientSetting.Client.DeleteAsync(uri);
+                    break;
+                case RequestType.Put:
+                    rd= HttpWebNetwork.PutRequest(uri, objs?[0]?.ToJsonString());
+                    break;
                 default:
                     rd = PostRequest(uri, objs);
                     break;
@@ -295,7 +301,12 @@ namespace NetProvider.Factory
         private Task<HttpResponseMessage> SendStream(FileTransferAttribute sa, params object[] objs)
         {
             string uri = HttpWebHelper.PathCombine(Uri, sa.Uri);
-            return HttpWebNetwork.SendStream(uri, sa.ContentName, sa.ContentType, objs);
+            if(objs[0] is FileTransferData)
+            {
+                return HttpWebNetwork.SendStream(uri, objs);
+            }
+            else
+                return HttpWebNetwork.SendStream(uri, sa.ContentName, sa.ContentType, objs);
         }
 
         public void SetHeader(string key, string value)

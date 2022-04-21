@@ -125,5 +125,38 @@ namespace NetProvider.Network
             var resp = clientSetting.Client.PostAsync(uri, content);
             return resp;
         }
+        /// <summary>
+        /// 文件上传
+        /// </summary>
+        /// <param name="uri"></param>
+        /// <param name="contentName"></param>
+        /// <param name="contentType"></param>
+        /// <param name="objs"></param>
+        /// <returns></returns>
+        public Task<HttpResponseMessage> SendStream(string uri, params object[] objs)
+        {
+            if (objs == null) throw new ProviderException("数据不能为空");
+
+            string boundary = string.Format("----------------------------{0}", DateTime.Now.Ticks.ToString("x"));
+            MultipartFormDataContent content = new MultipartFormDataContent(boundary);
+
+            foreach (object v in objs)
+            {
+                FileTransferData fileTransfer = v as FileTransferData;
+                
+                var sc = new StreamContent(fileTransfer.UploadFile);
+                sc.Headers.ContentType = new MediaTypeHeaderValue(fileTransfer.ContentType);
+                content.Add(sc, fileTransfer.ContentName, Path.GetFileName(fileTransfer.FileName));
+            }
+            var resp = clientSetting.Client.PostAsync(uri, content);
+            return resp;
+        }
+
+        public Task<HttpResponseMessage> PutRequest(string uri, string v)
+        {
+            HttpContent content = new StringContent(v);
+            SetContentHeader(content.Headers);
+            return clientSetting.Client.PutAsync(uri, content);
+        }
     }
 }
