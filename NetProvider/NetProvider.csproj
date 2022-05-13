@@ -8,13 +8,17 @@
     <PackageProjectUrl>https://github.com/huangchaoggg/NetProvider</PackageProjectUrl>
     <RepositoryUrl>https://github.com/huangchaoggg/NetProvider</RepositoryUrl>
     <RepositoryType>github</RepositoryType>
-    <Version>1.0.5</Version>
-    <AssemblyVersion>1.0.5.0</AssemblyVersion>
-    <FileVersion>1.0.5.0</FileVersion>
+    <Version>1.0.7-preview</Version>
+    <AssemblyVersion></AssemblyVersion>
+    <FileVersion></FileVersion>
     <Configurations>Debug;Release;Test</Configurations>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <ProduceReferenceAssembly>True</ProduceReferenceAssembly>
     <PackageTags>webapi,api,web</PackageTags>
+    <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+	<PackageLicenseFile>License.txt</PackageLicenseFile>
+	<Product>$(AssemblyName)-preview</Product>
+	<PackageId>$(AssemblyName)</PackageId>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -38,5 +42,8 @@
   <ItemGroup>
     <ProjectReference Include="..\NetProvider.Core\NetProvider.Core.csproj" />
   </ItemGroup>
+	<ItemGroup>
+		<None Include="License.txt" Pack="true" PackagePath="" />
+	</ItemGroup>
 
 </Project>

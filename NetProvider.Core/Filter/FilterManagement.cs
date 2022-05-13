@@ -14,10 +14,17 @@ namespace NetProvider.Core.Filter
 
             if (MessageFilters.Count == 0)
                 return value;
-            var message = new MessageFilterContext(retType, parameters, serviceChannel, MessageFilters.First);
-            message.Value = value;
-            return message.filter_node.Value.Filter(message);
+            LinkedListNode<IMessageFilter> filterNode = MessageFilters.First;
+            var message = new MessageFilterContext(retType, parameters, serviceChannel);
+            while (filterNode != null) {
+                var filter = filterNode.Value;
+                message.Value = value;
+                filter.Filter(message);
+                filterNode = filterNode.Next;
+            }
+            return message.Value;
         }
+
         public void AddMessageFilter(IMessageFilter filter)
         {
             if (!MessageFilters.Contains(filter))
@@ -40,21 +47,28 @@ namespace NetProvider.Core.Filter
                 ExceptionFilters.Find(filter).Value = filter;
             }
         }
-        public object CallExceptionFilter<Excp>(Excp value, 
+        public void CallExceptionFilter<Excp>(Excp value, 
             Type retType,
             Parameters parameters,
             IServiceChannel serviceChannel) where Excp: Exception
         {
             if (ExceptionFilters.Count == 0)
                  throw new ProviderException(value.GetBaseException().Message);
-            var context= new ExceptionFilterContext(retType, parameters, serviceChannel, ExceptionFilters.First);
+
+            LinkedListNode<IExceptionFilter> filterNode = ExceptionFilters.First;
+            var context= new ExceptionFilterContext(retType, parameters, serviceChannel);
             context.Exception = value;
-            var obj= context.Next(context);
+            context.ExceptionHandled = false;
+            while (filterNode != null)
+            {
+                var filter = filterNode.Value;
+                filter.Filter(context);
+                filterNode = filterNode.Next;
+            }
             if (!context.ExceptionHandled)
             {
                 throw new ProviderException(value.GetBaseException().Message);
             }
-            return obj;
         }
     }
 }

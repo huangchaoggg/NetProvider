@@ -132,12 +132,12 @@ namespace NetProvider.Factory
             return RunMethod<T>(attributes, retType, info.GetParameters(), parameters)
             .ContinueWith((result) =>
             {
-                T ret;
+                T ret=null;
                 if (result.Exception != null)
                 {
                     try
                     {
-                        ret = (T)filterManagement.CallExceptionFilter(result.Exception, retType, parameters, this);
+                        filterManagement.CallExceptionFilter(result.Exception, retType, parameters, this);
 
                     }
                     catch (ProviderException e)

@@ -1,6 +1,6 @@
 ﻿namespace NetProvider.Core.Filter
 {
-    public interface IExceptionFilter : IFilter<ExceptionFilterContext>
+    public interface IExceptionFilter:IFilter<ExceptionFilterContext> 
     {
     }
 }
