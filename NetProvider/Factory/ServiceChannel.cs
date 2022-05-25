@@ -41,7 +41,7 @@ namespace NetProvider.Factory
                 throw new ProviderException("实例化失败,实例化参数为空");
             if (type.IsInterface)
             {
-               HostAttribute att= type.GetCustomAttribute<HostAttribute>();
+               HostAttribute att= type.GetCustomAttribute<HostAttribute>(true);
                 if (att == null)
                     throw new ProviderException("HostAttribute 未设置");
                 this.Uri = att.Uri;
@@ -50,54 +50,7 @@ namespace NetProvider.Factory
                 this.HttpWebNetwork = new HttpWebNetwork(ClientSetting);
             }
         }
-        //public object Invok(Parameters parameters)
-        //{
-        //    Task<object> obj = new Task<object>(() =>
-        //    {
-        //        return InvokAsync(parameters).Result;
-        //    });
-        //    obj.Start();
-        //    return obj.Result;
-
-
-        //}
-        //public Task<object> InvokAsync(Parameters parameters)
-        //{
-        //    Type t = this.GetType();
-        //    MethodInfo info = t.GetInterface(parameters.InterfaceName).GetMethod(parameters.MethodName);
-        //    Attribute[] attributes = Attribute.GetCustomAttributes(info);
-        //    Type retType = info.ReturnType;
-        //    if (info.ReturnType.IsTask())
-        //    {
-        //        var args = info.ReturnType.GenericTypeArguments;
-        //        if (args.Length > 0)
-        //        {
-        //            retType = args[0];
-        //        }
-        //    }
-        //    return RunMethod<object>(attributes, retType, info.GetParameters(), parameters)
-        //    .ContinueWith((result) =>
-        //    {
-        //        object ret;
-        //        if (result.Exception != null)
-        //        {
-        //            try
-        //            {
-        //                ret = filterManagement.CallExceptionFilter(result.Exception, retType, parameters, this);
-
-        //            }catch(ProviderException e)
-        //            {
-        //                ret = null;
-        //                return Task.FromException(e);
-        //            }
-        //        }
-        //        else
-        //        {
-        //            ret = result.Result;
-        //        }
-        //        return ret;
-        //    });
-        //}
+       
         public T Invok<T>(Parameters parameters) where T : class
         {
             Task<T> obj = new Task<T>(() =>
