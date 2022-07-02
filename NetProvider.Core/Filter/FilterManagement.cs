@@ -47,28 +47,29 @@ namespace NetProvider.Core.Filter
                 ExceptionFilters.Find(filter).Value = filter;
             }
         }
-        public void CallExceptionFilter<Excp>(Excp value, 
+        public ExceptionFilterContext CallExceptionFilter<Excp>(Excp value, 
             Type retType,
             Parameters parameters,
             IServiceChannel serviceChannel) where Excp: Exception
         {
-            if (ExceptionFilters.Count == 0)
-                 throw new ProviderException(value.GetBaseException().Message);
-
-            LinkedListNode<IExceptionFilter> filterNode = ExceptionFilters.First;
             var context= new ExceptionFilterContext(retType, parameters, serviceChannel);
             context.Exception = value;
             context.ExceptionHandled = false;
-            while (filterNode != null)
-            {
-                var filter = filterNode.Value;
-                filter.Filter(context);
-                filterNode = filterNode.Next;
+            if (ExceptionFilters.Count > 0)
+            { 
+                LinkedListNode<IExceptionFilter> filterNode = ExceptionFilters.First;
+                while (filterNode != null)
+                {
+                    var filter = filterNode.Value;
+                    filter.Filter(context);
+                    filterNode = filterNode.Next;
+                }
             }
-            if (!context.ExceptionHandled)
-            {
-                throw new ProviderException(value.GetBaseException().Message);
-            }
+            return context;
+            //if (!context.ExceptionHandled)
+            //{
+            //    throw new ProviderException(value.GetBaseException().Message,value);
+            //}
         }
     }
 }

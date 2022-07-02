@@ -41,7 +41,7 @@ namespace NetProvider.Factory
                 throw new ProviderException("实例化失败,实例化参数为空");
             if (type.IsInterface)
             {
-               HostAttribute att= type.GetCustomAttribute<HostAttribute>(true);
+               HostAttribute att= GetHostAttribute(type);
                 if (att == null)
                     throw new ProviderException("HostAttribute 未设置");
                 this.Uri = att.Uri;
@@ -50,25 +50,44 @@ namespace NetProvider.Factory
                 this.HttpWebNetwork = new HttpWebNetwork(ClientSetting);
             }
         }
-       
+        /// <summary>
+        /// 循环获取本级或父级的特性
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        private HostAttribute GetHostAttribute(Type type)
+        {
+            HostAttribute att = type.GetCustomAttribute<HostAttribute>();
+            if (att != null)
+            {
+                return att;
+            }
+            var baseInterfaces= type.GetInterfaces();
+            if (baseInterfaces==null||baseInterfaces.Count() == 0)
+                return null;
+            foreach(var inter in baseInterfaces)
+            {
+                att= GetHostAttribute(inter);
+                if (att != null)
+                    return att;
+            }
+            return null;
+        }
         public T Invok<T>(Parameters parameters) where T : class
         {
-            Task<T> obj = new Task<T>(() =>
-            {
-                return InvokAsync<T>(parameters).Result;
-            });
-            obj.Start();
-            try
-            {
-                return obj.Result;
-                
-            }catch(Exception e)
-            {
-                throw e.GetBaseException();
-            }
+            return InvokAsync<T>(parameters).Result;
         }
 
-        public Task<T> InvokAsync<T>(Parameters parameters) where T:class
+        public async Task<T> InvokAsync<T>(Parameters parameters) where T : class
+        {
+            var result=await InvokAsync(parameters);
+            if(result is T)
+            {
+                return (T)result;
+            }
+            return default(T);
+        }
+        private Task<object> InvokAsync(Parameters parameters)
         {
             Type t = this.GetType();
             MethodInfo info = t.GetInterface(parameters.InterfaceName).GetMethod(parameters.MethodName);
@@ -82,30 +101,23 @@ namespace NetProvider.Factory
                     retType = args[0];
                 }
             }
-            return RunMethod<T>(attributes, retType, info.GetParameters(), parameters)
+            return RunMethod(attributes, retType, info.GetParameters(), parameters)
             .ContinueWith((result) =>
             {
-                T ret=null;
                 if (result.Exception != null)
                 {
-                    try
-                    {
-                        filterManagement.CallExceptionFilter(result.Exception, retType, parameters, this);
-
-                    }
-                    catch (ProviderException e)
-                    {
-                        throw e;
-                    }
+                    ExceptionFilterContext context= filterManagement.CallExceptionFilter(result.Exception, retType, parameters, this);
+                    if (!context.ExceptionHandled)
+                        throw context.Exception;
                 }
                 else
                 {
-                    ret = result.Result;
+                    return result.Result;
                 }
-                return ret;
+                return null;
             });
         }
-        private async Task<T> RunMethod<T>(Attribute[] attributes, Type retType, ParameterInfo[] parameterInfos, Parameters parameters) where T : class
+        private async Task<object> RunMethod(Attribute[] attributes, Type retType, ParameterInfo[] parameterInfos, Parameters parameters)
         {
             RequestAttribute ra = attributes.FirstOrDefault(s => s is RequestAttribute) as RequestAttribute;
             if (ra == null)
@@ -160,7 +172,7 @@ namespace NetProvider.Factory
                 {
                     retValue = o.ToObject(retType);
                 }
-                return (T)retValue;
+                return retValue;
             }
             throw new MessageException(rd.ToString());
         }
@@ -261,72 +273,14 @@ namespace NetProvider.Factory
             else
                 return HttpWebNetwork.SendStream(uri, sa.ContentName, sa.ContentType, objs);
         }
-
+        /// <summary>
+        /// 设置请求头
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
         public void SetHeader(string key, string value)
         {
             ClientSetting.SetHeader(key, value);
         }
     }
-    //public interface Aaa
-    //{
-
-
-    //    [RequestAttribute(RequestType.Post, "http://test-his-api.ccuol.net/user/login")]
-    //    object AAa(object cc);
-    //    object BBcd(object cc);
-
-    //    object Bbbc();
-    //}
-    //[Host("http://www.baidu.com",typeof(HttpClientSetting))]
-    public class Test : ServiceChannel
-    {
-        public Test(string uri, HttpClientSetting setting) : base(uri, setting) { }
-        public async Task<T> test1<T>() where T:class
-        {
-            return await base.InvokAsync<T>(null);
-        }
-        public void test2<T>() where T:class
-        {
-            T t= test3<T>("ss","dd");
-        }
-        public T test3<T>(params string[] aa) where T:class
-        {
-            return null;
-        }
-        public void test4(int[] sb, params string[] aa)
-        {
-            test5(sb, aa);
-        }
-        public object test5(int[] sb, params string[] aa)
-        {
-            return null;
-        }
-    }
-    //public class BBb : Test,Aaa
-    //{
-    //    public object AAa(object cc)
-    //    {
-    //        return null;
-    //    }
-
-    //    public void abc()
-    //    {
-    //        int aa = 0;
-    //        aa=test1();
-    //        test2("ss");
-    //        test3("sssd", "sss");
-    //        int[] a = { 1, 2, 3 };
-    //        test4(a, "sds", "sdsd");
-    //    }
-
-    //    public object Bbbc()
-    //    {
-    //        return null;
-    //    }
-
-    //    public object BBcd(object cc)
-    //    {
-    //        return null;
-    //    }
-    //}
 }

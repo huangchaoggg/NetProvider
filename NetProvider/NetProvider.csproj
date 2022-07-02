@@ -8,7 +8,7 @@
     <PackageProjectUrl>https://github.com/huangchaoggg/NetProvider</PackageProjectUrl>
     <RepositoryUrl>https://github.com/huangchaoggg/NetProvider</RepositoryUrl>
     <RepositoryType>github</RepositoryType>
-    <Version>1.0.7-preview-1</Version>
+    <Version>1.0.8</Version>
     <AssemblyVersion></AssemblyVersion>
     <FileVersion></FileVersion>
     <Configurations>Debug;Release;Test</Configurations>

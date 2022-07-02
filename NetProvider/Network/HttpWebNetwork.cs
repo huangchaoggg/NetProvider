@@ -64,6 +64,7 @@ namespace NetProvider.Network
             }
             if (content != null)
             {
+                content.Headers.ContentType.MediaType= type == RequestType.Post ? "application/json" : content.Headers.ContentType.MediaType;
                 message.Content = content;
                 SetContentHeader(content.Headers);
             }
