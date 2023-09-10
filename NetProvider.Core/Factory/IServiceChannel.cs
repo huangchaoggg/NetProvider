@@ -7,7 +7,7 @@ namespace NetProvider.Core.Channels
     {
         //object Invok(Parameters parameters);
         //Task<object> InvokAsync(Parameters parameters);
-        T Invok<T>(Parameters parameters) where T : class;
-        Task<T> InvokAsync<T>(Parameters parameters) where T : class;
+        T Invok<T>(Parameters parameters);
+        Task<T> InvokAsync<T>(Parameters parameters);
     }
 }

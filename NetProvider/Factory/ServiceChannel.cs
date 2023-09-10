@@ -73,21 +73,46 @@ namespace NetProvider.Factory
             }
             return null;
         }
-        public T Invok<T>(Parameters parameters) where T : class
+        public T Invok<T>(Parameters parameters)
         {
             return InvokAsync<T>(parameters).Result;
         }
 
-        public async Task<T> InvokAsync<T>(Parameters parameters) where T : class
+        public async Task<T> InvokAsync<T>(Parameters parameters)
         {
             var result=await InvokAsync(parameters);
             if(result is T)
             {
                 return (T)result;
+            }else if(result is IConvertible convertible)
+            {
+                if (typeof(T) == typeof(int))
+                    return (T)((object)convertible.ToInt32(null));
+                if(typeof(T)==typeof(long))
+                    return (T)((object)convertible.ToInt64(null));
+                if (typeof(T) == typeof(short))
+                    return (T)((object)convertible.ToInt16(null));
+                if (typeof(T) == typeof(bool))
+                    return (T)((object)convertible.ToBoolean(null));
+                if (typeof(T) == typeof(byte))
+                    return (T)((object)convertible.ToByte(null));
+                if (typeof(T) == typeof(sbyte))
+                    return (T)((object)convertible.ToSByte(null));
+                if (typeof(T) == typeof(float))
+                    return (T)((object)convertible.ToSingle(null));
+                if (typeof(T) == typeof(double))
+                    return (T)((object)convertible.ToDouble(null));
+                if (typeof(T) == typeof(DateTime))
+                    return (T)((object)convertible.ToDateTime(null));
+                if (typeof(T) == typeof(decimal))
+                    return (T)((object)convertible.ToDecimal(null));
+                if (typeof(T) == typeof(byte))
+                    return (T)((object)convertible.ToByte(null));
+
             }
             return default(T);
         }
-        private Task<object> InvokAsync(Parameters parameters)
+        private async Task<object> InvokAsync(Parameters parameters)
         {
             Type t = this.GetType();
             MethodInfo info = t.GetInterface(parameters.InterfaceName).GetMethod(parameters.MethodName);
@@ -101,7 +126,7 @@ namespace NetProvider.Factory
                     retType = args[0];
                 }
             }
-            return RunMethod(attributes, retType, info.GetParameters(), parameters)
+            var value=await RunMethod(attributes, retType, info.GetParameters(), parameters)
             .ContinueWith((result) =>
             {
                 if (result.Exception != null)
@@ -116,6 +141,7 @@ namespace NetProvider.Factory
                 }
                 return null;
             });
+            return value;
         }
         private async Task<object> RunMethod(Attribute[] attributes, Type retType, ParameterInfo[] parameterInfos, Parameters parameters)
         {
@@ -162,17 +188,18 @@ namespace NetProvider.Factory
                 {
                     if (retType == typeof(string))
                     {
-                        
+                        return retValue;
                     }
                     else if (retType.IsClass&&!retType.IsEnum&&!retType.IsValueType)
                     {
-                        retValue = v.ToObject(retType);
+                        return v.ToObject(retType);
                     }
                 }else if (retValue is Newtonsoft.Json.Linq.JToken o)
                 {
-                    retValue = o.ToObject(retType);
+                    return o.ToObject(retType);
                 }
-                return retValue;
+                else
+                    return retValue;
             }
             throw new MessageException(rd.ToString());
         }
